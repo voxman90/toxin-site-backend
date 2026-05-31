@@ -3,7 +3,12 @@ import { HydratedDocument } from 'mongoose';
 
 import type { IUser } from '../models/User.js';
 
-export interface AuthorizedRequest<P = Record<string, string>> extends Request<P> {
+export interface AuthorizedRequest<
+  P = Record<string, string>,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = any
+> extends Request<P, ResBody, ReqBody, ReqQuery> {
   user?: HydratedDocument<IUser>;
   headers: { authorization?: string };
 }
