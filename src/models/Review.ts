@@ -9,34 +9,39 @@ export interface IReview {
   likes: Types.ObjectId[];
 }
 
-export type ReviewModel = Model<IReview, {}, {}>;
+export type ReviewModel = Model<IReview>;
 
-const reviewSchema = new Schema<IReview, ReviewModel>({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+const reviewSchema = new Schema<IReview, ReviewModel>(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    room: {
+      type: Schema.Types.ObjectId,
+      ref: 'Room',
+      required: true,
+    },
+    text: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+      },
+    ],
   },
-  room: {
-    type: Schema.Types.ObjectId,
-    ref: 'Room',
-    required: true,
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
-  text: {
-    type: String,
-    trim: true,
-    default: '',
-  },
-  likes: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    default: [],
-  }],
-}, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true },
-});
+);
 
 reviewSchema.plugin(mongooseAggregatePaginate);
 

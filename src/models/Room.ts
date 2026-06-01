@@ -21,69 +21,72 @@ export interface IRoom {
   reviewsCount: number;
 }
 
-type RoomModel = Model<IRoom, {}, {}>;
+type RoomModel = Model<IRoom>;
 
-const roomSchema = new Schema<IRoom, RoomModel, {}>({
-  roomNumber: {
-    type: Number,
-    required: true,
-    unique: true,
+const roomSchema = new Schema<IRoom, RoomModel>(
+  {
+    roomNumber: {
+      type: Number,
+      required: true,
+      unique: true,
+    },
+    isLuxe: {
+      type: Boolean,
+      default: false,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    capacity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    accessibility: {
+      type: [String],
+      enum: ACCESSIBILITY,
+    },
+    rules: {
+      type: [String],
+      enum: RULES,
+    },
+    bedroom: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    bed: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    bathroom: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
+    images: [String],
+    avgRating: {
+      type: Number,
+      default: 0,
+    },
+    reviewsCount: {
+      type: Number,
+      default: 0,
+    },
   },
-  isLuxe: {
-    type: Boolean,
-    default: false,
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
-  price: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  capacity: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
-  accessibility: {
-    type: [String],
-    enum: ACCESSIBILITY,
-  },
-  rules: {
-    type: [String],
-    enum: RULES,
-  },
-  bedroom: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  bed: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  bathroom: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  isAvailable: {
-    type: Boolean,
-    default: true,
-  },
-  images: [String],
-  avgRating: {
-    type: Number,
-    default: 0,
-  },
-  reviewsCount: {
-    type: Number,
-    default: 0,
-  },
-}, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true },
-});
+);
 
 roomSchema.virtual('allReviews', {
   ref: 'Review',

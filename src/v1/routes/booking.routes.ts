@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { protect } from '../../middlewares/authMiddleware.js';
-import { createBooking, getBookingPreview } from '../controllers/bookingController.js';
+import { protect } from '../../middlewares/auth.middleware.js';
+import { createBooking, getBookingPreview } from '../controllers/booking.controller.js';
 
 const router = Router();
 

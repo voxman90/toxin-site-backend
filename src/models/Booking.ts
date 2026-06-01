@@ -1,6 +1,6 @@
 import { Model, Schema, Types, model } from 'mongoose';
 
-import type { AdditionalService } from '../@types/data.js';
+import type { AdditionalService, Guest } from '../@types/data.js';
 import { ADDITIONAL_SERVICES } from '../constants/constants.js';
 
 export interface BookingPriceSummary {
@@ -19,6 +19,7 @@ export interface IBooking {
   room: Types.ObjectId;
   checkIn: Date;
   checkOut: Date;
+  guests: Partial<Record<Guest, number>>;
   additionalServices: AdditionalService[];
   priceSummary: BookingPriceSummary;
 }
@@ -26,11 +27,11 @@ export interface IBooking {
 export interface BookingModel extends Model<IBooking> {
   calculateNights(checkIn: Date, checkOut: Date): number;
   calculateTotalPrice(args: {
-    pricePerNight: number,
-    nights: number,
-    servicePrice: number,
-    additionalServicePrice: number,
-    discount: number,
+    pricePerNight: number;
+    nights: number;
+    servicePrice: number;
+    additionalServicePrice: number;
+    discount: number;
   }): {
     basePrice: number;
     totalPrice: number;
@@ -38,76 +39,102 @@ export interface BookingModel extends Model<IBooking> {
   };
 }
 
-const bookingSchema = new Schema<IBooking, BookingModel>({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  room: {
-    type: Schema.Types.ObjectId,
-    ref: 'Room',
-    required: true,
-  },
-  checkIn: {
-    type: Date,
-    required: true,
-  },
-  checkOut: {
-    type: Date,
-    required: true,
-  },
-  priceSummary: {
-    nights: {
-      type: Number,
+const bookingSchema = new Schema<IBooking, BookingModel>(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
-    discount: {
-      type: Number,
+    room: {
+      type: Schema.Types.ObjectId,
+      ref: 'Room',
       required: true,
     },
-    pricePerNight: {
-      type: Number,
+    checkIn: {
+      type: Date,
       required: true,
     },
-    basePrice: {
-      type: Number,
+    checkOut: {
+      type: Date,
       required: true,
     },
-    servicePrice: {
-      type: Number,
-      required: true,
-    },
-    additionalServicePrice: {
-      type: Number,
-      required: true,
-    },
-    additionalServiceSummary: {
-      type: Map,
-      of: Number,
-      validate: {
-        validator: (v: Map<string, number>) => {
-          return Array.from(v.keys()).every(key =>
-            ADDITIONAL_SERVICES.includes(key as AdditionalService)
-          );
+    guests: {
+      type: {
+        adult: {
+          type: Number,
+          default: 0,
         },
-        message: 'Invalid service name',
+        child: {
+          type: Number,
+          default: 0,
+        },
+        baby: {
+          type: Number,
+          default: 0,
+        },
+      },
+      required: true,
+      validate: {
+        validator: function (v) {
+          return v.adult + v.child > 0;
+        },
+        message: 'There must be at least one guest',
       },
     },
-    totalPrice: {
-      type: Number,
-      required: true,
+    priceSummary: {
+      nights: {
+        type: Number,
+        required: true,
+      },
+      discount: {
+        type: Number,
+        required: true,
+      },
+      pricePerNight: {
+        type: Number,
+        required: true,
+      },
+      basePrice: {
+        type: Number,
+        required: true,
+      },
+      servicePrice: {
+        type: Number,
+        required: true,
+      },
+      additionalServicePrice: {
+        type: Number,
+        required: true,
+      },
+      additionalServiceSummary: {
+        type: Map,
+        of: Number,
+        validate: {
+          validator: (v: Map<string, number>) => {
+            return Array.from(v.keys()).every((key) =>
+              ADDITIONAL_SERVICES.includes(key as AdditionalService),
+            );
+          },
+          message: 'Invalid service name',
+        },
+      },
+      totalPrice: {
+        type: Number,
+        required: true,
+      },
+    },
+    additionalServices: {
+      type: [String],
+      enum: ADDITIONAL_SERVICES,
     },
   },
-  additionalServices: {
-    type: [String],
-    enum: ADDITIONAL_SERVICES,
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
-}, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true },
-});
+);
 
 bookingSchema.statics.calculateTotalPrice = function ({
   pricePerNight,
@@ -125,7 +152,7 @@ bookingSchema.statics.calculateTotalPrice = function ({
     basePrice,
     totalPrice,
   };
-}
+};
 
 bookingSchema.statics.calculateNights = function (checkIn: Date, checkOut: Date) {
   const fromMs = checkIn.getTime();
@@ -137,7 +164,7 @@ bookingSchema.statics.calculateNights = function (checkIn: Date, checkOut: Date)
   const msInDay = 24 * 60 * 60 * 1000;
 
   return Math.ceil(diffMs / msInDay);
-}
+};
 
 const Booking = model<IBooking, BookingModel>('Booking', bookingSchema);
 

@@ -1,24 +1,41 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import mongoose, { Types } from 'mongoose';
 
 import type { AuthorizedRequest } from '../../@types/express.js';
 import Rating from '../../models/Rating.js';
 import Room from '../../models/Room.js';
+import { createRatingSchema, getRatingSummarySchema } from '../../schemas/rating.schema.js';
+import { handleControllerError } from '../../utils/handleError.js';
 
-const createRating = async (req: AuthorizedRequest, res: Response) => {
+export const createRating = async (req: AuthorizedRequest, res: Response) => {
   const session = await mongoose.startSession();
 
   try {
-    const { roomId } = req.params;
-    const { score } = req.body;
+    const params = await createRatingSchema.shape.params.parseAsync(req.params);
+    const body = await createRatingSchema.shape.body.parseAsync(req.body);
+
+    const { roomId } = params;
+    const { score } = body;
     const userId = req.user?._id;
 
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
     await session.withTransaction(async () => {
-      await Rating.create([{
-        score: Number(score),
-        user: userId,
-        room: roomId,
-      }], { session });
+      await Rating.findOneAndUpdate(
+        {
+          user: userId,
+          room: roomId,
+        },
+        { $set: { score } },
+        {
+          upsert: true,
+          session,
+          returnDocument: 'after',
+          runValidators: true,
+        },
+      );
 
       const stats = await Rating.aggregate([
         { $match: { room: new Types.ObjectId(roomId) } },
@@ -32,23 +49,29 @@ const createRating = async (req: AuthorizedRequest, res: Response) => {
       ]).session(session);
 
       const { avgScore } = stats[0] || { avgScore: 0 };
+      const safeAvgScore = avgScore ?? 0;
 
-      await Room.findByIdAndUpdate(roomId, {
-        avgRating: Number(avgScore.toFixed(1)),
-      }, { session });
+      await Room.findByIdAndUpdate(
+        roomId,
+        {
+          avgRating: Number(safeAvgScore.toFixed(1)),
+        },
+        { session },
+      );
     });
 
-    res.status(201).json({ message: 'Rating created successfully' });
-  } catch (error: any) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(201).json({ message: 'Rating saved successfully' });
+  } catch (error) {
+    handleControllerError(error, res);
   } finally {
     session.endSession();
   }
 };
 
-const getRatingSummary = async (req: Request<{ roomId: string }>, res: Response) => {
+export const getRatingSummary = async (req: AuthorizedRequest, res: Response) => {
   try {
-    const { roomId } = req.params;
+    const params = await getRatingSummarySchema.shape.params.parseAsync(req.params);
+    const { roomId } = params;
 
     const [stats] = await Rating.aggregate([
       { $match: { room: new Types.ObjectId(roomId) } },
@@ -75,16 +98,17 @@ const getRatingSummary = async (req: Request<{ roomId: string }>, res: Response)
       return res.status(200).json({
         totalCount: 0,
         avgScore: 0,
-        scoreBreakdown: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 },
+        scoreBreakdown: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
       });
     }
 
     const formattedBreakdown = stats.scoreBreakdown.reduce(
       (acc: Record<string, number>, item: Record<string, number>) => {
         acc[item._id] = item.count;
+
         return acc;
       },
-      {}
+      {},
     );
 
     res.status(200).json({
@@ -93,11 +117,6 @@ const getRatingSummary = async (req: Request<{ roomId: string }>, res: Response)
       scoreBreakdown: formattedBreakdown,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    handleControllerError(error, res);
   }
-};
-
-export {
-  createRating,
-  getRatingSummary,
 };

@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 
-import { AdditionalService } from '../../@types/data.js';
+import type { AdditionalService, BookingPreview } from '../../@types/data.js';
 import type { AuthorizedRequest } from '../../@types/express.js';
 import Booking from '../../models/Booking.js';
 import Room from '../../models/Room.js';
 import Service from '../../models/Service.js';
+import { bookingBodySchema, bookingParamsSchema } from '../../schemas/booking.schema.js';
+import { handleControllerError } from '../../utils/handleError.js';
 
 interface CalculateBookingPreviewParams {
-  checkIn: string;
-  checkOut: string;
+  checkIn: Date;
+  checkOut: Date;
   additionalServices: AdditionalService[];
   pricePerNight: number;
 }
@@ -19,15 +21,13 @@ const calculateBookingPreview = async ({
   checkOut,
   additionalServices,
   pricePerNight,
-}: CalculateBookingPreviewParams) => {
-  const nights = Booking.calculateNights(new Date(checkIn), new Date(checkOut));
+}: CalculateBookingPreviewParams): Promise<BookingPreview> => {
+  const nights = Booking.calculateNights(checkIn, checkOut);
 
   const servicePrice = 0;
   const discount = 0;
-  const {
-    totalPrice: additionalServicePrice,
-    summary: additionalServiceSummary,
-  } = await Service.calculateAdditionalServicePrice(additionalServices);
+  const { totalPrice: additionalServicePrice, summary: additionalServiceSummary } =
+    await Service.calculateAdditionalServicePrice(additionalServices);
 
   const { totalPrice, basePrice } = Booking.calculateTotalPrice({
     nights,
@@ -49,16 +49,14 @@ const calculateBookingPreview = async ({
   };
 };
 
-const getBookingPreview = async (req: Request, res: Response) => {
+export const getBookingPreview = async (req: Request, res: Response) => {
   try {
-    const { roomId } = req.params;
-    const { checkIn, checkOut, additionalServices = [] } = req.body;
+    const params = await bookingParamsSchema.parseAsync(req.params);
+    const body = await bookingBodySchema.parseAsync(req.body);
+    const { roomId } = params;
+    const { checkIn, checkOut, 'additionalServices[]': additionalServices } = body;
 
     const room = await Room.findById(roomId);
-
-    if (!checkIn || !checkOut) {
-      return res.status(400).json({ message: 'Bad request' });
-    }
 
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
@@ -73,36 +71,34 @@ const getBookingPreview = async (req: Request, res: Response) => {
 
     return res.status(200).json(bookingPreview);
   } catch (error) {
-    return res.status(500).json({ message: 'Server error' });
+    handleControllerError(error, res);
   }
 };
 
-const createBooking = async (
-  req: AuthorizedRequest<{ roomId: string }>,
-  res: Response,
-) => {
+export const createBooking = async (req: AuthorizedRequest, res: Response) => {
   try {
-    const { roomId } = req.params;
-    const { checkIn, checkOut, additionalServices } = req.body;
+    const params = await bookingParamsSchema.parseAsync(req.params);
+    const body = await bookingBodySchema.parseAsync(req.body);
+    const { roomId } = params;
+    const {
+      checkIn,
+      checkOut,
+      'guests[adult]': adultQuery,
+      'guests[child]': childQuery,
+      'guests[baby]': babyQuery,
+      'additionalServices[]': additionalServices,
+    } = body;
     const { user } = req;
+    const userId = user?._id;
 
-    if (!checkIn || !checkOut) {
-      return res.status(400).json({ message: 'Bad request: checkIn and checkOut are required' });
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
     }
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const userId = user._id;
-
-    const checkInDate = new Date(checkIn);
-    const checkOutDate = new Date(checkOut);
 
     const isOverlapping = await Booking.findOne({
       room: roomId,
-      checkIn: { $lt: checkOutDate },
-      checkOut: { $gt: checkInDate },
+      checkIn: { $lte: checkOut },
+      checkOut: { $gte: checkIn },
     });
 
     if (isOverlapping) {
@@ -128,17 +124,17 @@ const createBooking = async (
       room: roomObjectId,
       checkIn,
       checkOut,
+      guests: {
+        adult: adultQuery,
+        child: childQuery,
+        baby: babyQuery,
+      },
       additionalServices,
       priceSummary,
     });
 
     res.status(201).json(newBooking);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    handleControllerError(error, res);
   }
-};
-
-export {
-  createBooking,
-  getBookingPreview,
 };

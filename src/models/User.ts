@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import { model, Model, Schema } from 'mongoose';
+import { Model, Schema, model } from 'mongoose';
 
 import type { Role } from '../@types/data.js';
-import { ROLES, PSW_SALT_ROUNDS } from '../constants/constants.js';
+import { ROLES } from '../constants/constants.js';
 
 export interface IUser {
   firstName: string;
@@ -16,74 +16,79 @@ export interface IUser {
   avatarUrl: string;
 }
 
-export interface IUserInstanceMethods extends Model<IUser> {
+export interface IUserMethods extends Model<IUser> {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-export type UserModel = Model<IUser, {}, IUserInstanceMethods>;
+export type UserModel = Model<IUser, unknown, IUserMethods>;
 
-export const userSchema = new Schema<IUser, UserModel, IUserInstanceMethods>({
-  firstName: {
-    type: String,
-    required: true,
-    trim: true,
+export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
+  {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    birthdate: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
+    },
+    specialOffer: {
+      type: Boolean,
+      default: false,
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
+    role: {
+      type: String,
+      enum: [ROLES.user, ROLES.admin],
+      default: ROLES.user,
+    },
+    avatarUrl: {
+      type: String,
+      default: '',
+    },
   },
-  lastName: {
-    type: String,
-    required: true,
-    trim: true,
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: (_, ret) => {
+        const user = ret as Partial<IUser>;
+
+        delete user.password;
+
+        return user;
+      },
+    },
+    toObject: { virtuals: true },
   },
-  birthdate: {
-    type: String,
-    required: true,
-  },
-  gender: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'],
-  },
-  specialOffer: {
-    type: Boolean,
-    default: false,
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-  },
-  role: {
-    type: String,
-    enum: [ROLES.user, ROLES.admin],
-    default: ROLES.user,
-  },
-  avatarUrl: {
-    type: String,
-    default: '',
-  },
-}, {
-  timestamps: true,
-  toJSON: {
-    virtuals: true,
-    transform: (_, ret) => {
-      const user = ret as Partial<IUser>;
-      delete user.password;
-      return user;
-    }
-  },
-  toObject: { virtuals: true },
-});
+);
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
 
-  this.password = await bcrypt.hash(this.password, PSW_SALT_ROUNDS);
+  this.password = await bcrypt.hash(this.password, Number(process.env.PSW_SALT_ROUNDS));
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword: string) {

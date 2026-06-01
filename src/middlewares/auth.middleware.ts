@@ -5,7 +5,7 @@ import type { Role } from '../@types/data.js';
 import type { AuthorizedRequest } from '../@types/express.js';
 import User from '../models/User.js';
 
-const protect = (isOptional: boolean = false) => {
+export const protect = (isOptional = false) => {
   return async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
     let token: string | undefined;
 
@@ -16,7 +16,7 @@ const protect = (isOptional: boolean = false) => {
     if (!token) {
       if (isOptional) return next();
 
-      return res.status(401).json({ message: 'Not authorized' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
     try {
@@ -29,7 +29,7 @@ const protect = (isOptional: boolean = false) => {
 
       req.user = user;
       next();
-    } catch (error) {
+    } catch {
       if (isOptional) return next();
 
       res.status(401).json({ message: 'Invalid token' });
@@ -37,7 +37,7 @@ const protect = (isOptional: boolean = false) => {
   };
 };
 
-const authorize = (role: Role) => {
+export const authorize = (role: Role) => {
   return async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -50,7 +50,5 @@ const authorize = (role: Role) => {
     }
 
     next();
-  }
+  };
 };
-
-export { authorize, protect };

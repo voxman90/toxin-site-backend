@@ -1,15 +1,14 @@
 import mongoose from 'mongoose';
 
 async function setupDatabase() {
-  if (process.env.NODE_ENV ==='production') {
-    const uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI;
 
-    if (!uri) {
-      throw new Error('Critical error: MONGODB_URI not set!');
-    }
-
-    await mongoose.connect(uri);
+  if (!uri) {
+    throw new Error('Critical error: MONGODB_URI not set!');
   }
+
+  await mongoose.connect(uri);
+  console.log('\x1b[32m%s\x1b[0m', 'Сonnection to mongoDB database established');
 }
 
-export { setupDatabase }
+export { setupDatabase };

@@ -1,21 +1,17 @@
 import { Request, Response } from 'express';
 
 import User from '../../models/User.js';
+import { loginUserSchema, registerUserSchema } from '../../schemas/user.schema.js';
 import { createSecretToken } from '../../utils/generateToken.js';
+import { handleControllerError } from '../../utils/handleError.js';
 
-const registerUser = async (req: Request, res: Response) => {
-  const {
-    firstName,
-    lastName,
-    gender,
-    birthdate,
-    specialOffer,
-    email,
-    password,
-  } = req.body;
-
+export const registerUser = async (req: Request, res: Response) => {
   try {
+    const body = await registerUserSchema.shape.body.parseAsync(req.body);
+    const { firstName, lastName, gender, birthdate, specialOffer, email, password } = body;
+
     const userExists = await User.findOne({ email });
+
     if (userExists) {
       return res.status(409).json({ message: 'User with this email already exists' });
     }
@@ -32,13 +28,14 @@ const registerUser = async (req: Request, res: Response) => {
 
     res.status(201).json({ message: 'User signed up successfully' });
   } catch (error) {
-    res.status(400).json({ message: 'Bad Request' });
+    handleControllerError(error, res);
   }
 };
 
-const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const body = await loginUserSchema.shape.body.parseAsync(req.body);
+    const { email, password } = body;
 
     const user = await User.findOne({ email }).select('+password');
 
@@ -70,11 +67,6 @@ const loginUser = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    handleControllerError(error, res);
   }
-};
-
-export {
-  loginUser,
-  registerUser,
 };
