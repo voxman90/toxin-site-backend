@@ -1,12 +1,13 @@
+import type { HydratedDocument } from 'mongoose';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import type { HydratedDocument } from 'mongoose';
 import app from '../src/app.js';
 import Review from '../src/models/Review.js';
 import Room from '../src/models/Room.js';
 import type { IUser } from '../src/models/User.js';
 import User from '../src/models/User.js';
+
 import { createReviewFixtures } from './fixtures/review.fixture.js';
 import { roomFixtures } from './fixtures/room.fixture.js';
 import { validObjectId } from './fixtures/shared.js';
@@ -31,13 +32,10 @@ describe('Reviews API (Integration)', () => {
 
   describe('POST /api/v1/reviews/:roomId', () => {
     it('should successfully post a review when user is authorized', async () => {
-      const res = await request(app)
-        .post('/api/v1/reviews/')
-        .set(authHeader)
-        .send({
-          text: 'Mock review',
-          roomId: targetRoom._id.toString(),
-        });
+      const res = await request(app).post('/api/v1/reviews/').set(authHeader).send({
+        text: 'Mock review',
+        roomId: targetRoom._id.toString(),
+      });
 
       expect(res.status).toBe(201);
 
@@ -46,23 +44,18 @@ describe('Reviews API (Integration)', () => {
     });
 
     it('should return 400 when required fields are missing', async () => {
-      const res = await request(app)
-        .post('/api/v1/reviews/')
-        .set(authHeader)
-        .send({
-          roomId: targetRoom._id.toString(),
-        });
+      const res = await request(app).post('/api/v1/reviews/').set(authHeader).send({
+        roomId: targetRoom._id.toString(),
+      });
 
       expect(res.status).toBe(400);
     });
 
     it('should return 401 when user is not authenticated', async () => {
-      const res = await request(app)
-        .post('/api/v1/reviews/')
-        .send({
-          text: 'Mock review',
-          roomId: targetRoom._id.toString(),
-        });
+      const res = await request(app).post('/api/v1/reviews/').send({
+        text: 'Mock review',
+        roomId: targetRoom._id.toString(),
+      });
 
       expect(res.status).toBe(401);
     });
@@ -101,23 +94,21 @@ describe('Reviews API (Integration)', () => {
     });
 
     it('should return 400 when query parameters (page, limit) are invalid', async () => {
-      const res = await request(app)
-        .get(`/api/v1/reviews/${targetRoom._id.toString()}`)
-        .query({
-          page: -1,
-          limit: 1,
-        });
+      const res = await request(app).get(`/api/v1/reviews/${targetRoom._id.toString()}`).query({
+        page: -1,
+        limit: 1,
+      });
 
       expect(res.status).toBe(400);
       expect(res.body.errors[0].field).toBe('page');
       expect(res.body.errors[0].message).toBe('Page must be a positive number');
 
-    const otherRes = await request(app)
-      .get(`/api/v1/reviews/${targetRoom._id.toString()}`)
-      .query({
-        page: 1,
-        limit: 'Wololo!',
-      });
+      const otherRes = await request(app)
+        .get(`/api/v1/reviews/${targetRoom._id.toString()}`)
+        .query({
+          page: 1,
+          limit: 'Wololo!',
+        });
 
       expect(otherRes.status).toBe(400);
       expect(otherRes.body.errors[0].field).toBe('limit');
@@ -203,8 +194,9 @@ describe('Reviews API (Integration)', () => {
     it('should return 401 when user is not authenticated', async () => {
       const targetReview = await Review.findOne({ text: '1' });
 
-      const res = await request(app)
-        .put(`/api/v1/reviews/${targetReview?._id.toString()}/toggle-like`);
+      const res = await request(app).put(
+        `/api/v1/reviews/${targetReview?._id.toString()}/toggle-like`,
+      );
 
       expect(res.status).toBe(401);
       expect(res.body.message).toBe('Unauthorized');

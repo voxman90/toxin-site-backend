@@ -1,4 +1,4 @@
-import { IService } from  '../../src/models/Service';
+import { IService } from '../../src/models/Service';
 
 export const serviceFixtures: IService[] = [
   {

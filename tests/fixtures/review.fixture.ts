@@ -2,8 +2,8 @@ import { Types } from 'mongoose';
 import type { HydratedDocument } from 'mongoose';
 
 import type { IReview } from '../../src/models/Review';
-import type { IUser } from '../../src/models/User';
 import type { IRoom } from '../../src/models/Room';
+import type { IUser } from '../../src/models/User';
 
 export const createReviewFixtures = (
   users: HydratedDocument<IUser>[],

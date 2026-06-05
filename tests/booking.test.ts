@@ -7,6 +7,7 @@ import Booking from '../src/models/Booking.js';
 import Room from '../src/models/Room.js';
 import Service from '../src/models/Service.js';
 import User from '../src/models/User.js';
+
 import { roomFixtures } from './fixtures/room.fixture.js';
 import { serviceFixtures } from './fixtures/service.fixture.js';
 import { validUserData } from './fixtures/user.fixture.js';
@@ -67,7 +68,9 @@ describe('Bookings API (Integration)', () => {
 
       expect(res.status).toBe(400);
       expect(res.body.errors[0].field).toBe('checkOut');
-      expect(res.body.errors[0].message).toBe('Check-out date must be a UTC ISO string (ending with Z)');
+      expect(res.body.errors[0].message).toBe(
+        'Check-out date must be a UTC ISO string (ending with Z)',
+      );
     });
 
     it('should return 400 when additional services contain unexpected values', async () => {
@@ -139,7 +142,7 @@ describe('Bookings API (Integration)', () => {
             ['TV', 1000],
           ]),
           totalPrice: 42500,
-        }
+        },
       });
     });
 

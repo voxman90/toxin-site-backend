@@ -1,4 +1,4 @@
-import { IRoom } from  '../../src/models/Room';
+import { IRoom } from '../../src/models/Room';
 
 export const roomFixtures: IRoom[] = [
   {

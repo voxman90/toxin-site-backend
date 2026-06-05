@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import app from '../src/app.js';
 import type { IUser } from '../src/models/User.js';
 import User from '../src/models/User.js';
+
 import { invalidObjectId, validObjectId } from './fixtures/shared.js';
 import { validUserData } from './fixtures/user.fixture.js';
 import { getAuthHeader } from './utils/auth.js';
@@ -20,9 +21,7 @@ describe('Users API (Integration)', () => {
 
   describe('GET /api/v1/users/me', () => {
     it('should return 200 and current user profile when authorized', async () => {
-      const res = await request(app)
-        .get('/api/v1/users/me')
-        .set(authHeader);
+      const res = await request(app).get('/api/v1/users/me').set(authHeader);
 
       expect(res.status).toBe(200);
       expect(res.body._id).toBe(testUser._id.toString());
@@ -31,8 +30,7 @@ describe('Users API (Integration)', () => {
     });
 
     it('should return 401 when authorization token is missing', async () => {
-      const res = await request(app)
-        .get('/api/v1/users/me');
+      const res = await request(app).get('/api/v1/users/me');
 
       expect(res.status).toBe(401);
     });
@@ -40,8 +38,7 @@ describe('Users API (Integration)', () => {
 
   describe('GET /api/v1/users/:id', () => {
     it('should return 200 and user data when id is valid', async () => {
-      const res = await request(app)
-        .get(`/api/v1/users/${testUser._id.toString()}`);
+      const res = await request(app).get(`/api/v1/users/${testUser._id.toString()}`);
 
       expect(res.status).toBe(200);
       expect(res.body.firstName).toBe(testUser.firstName);
@@ -50,8 +47,7 @@ describe('Users API (Integration)', () => {
     });
 
     it('should return 400 when user ID is not valid', async () => {
-      const res = await request(app)
-        .get(`/api/v1/users/${invalidObjectId}`);
+      const res = await request(app).get(`/api/v1/users/${invalidObjectId}`);
 
       expect(res.status).toBe(400);
       expect(res.body.status).toBe('fail');
@@ -59,8 +55,7 @@ describe('Users API (Integration)', () => {
     });
 
     it('should return 404 when user ID is valid but user not exist', async () => {
-      const res = await request(app)
-        .get(`/api/v1/users/${validObjectId}`);
+      const res = await request(app).get(`/api/v1/users/${validObjectId}`);
 
       expect(res.status).toBe(404);
       expect(res.body.message).toBe('User not found');

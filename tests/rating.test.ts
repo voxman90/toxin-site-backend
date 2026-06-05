@@ -1,12 +1,13 @@
+import type { HydratedDocument } from 'mongoose';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import type { HydratedDocument } from 'mongoose';
 import app from '../src/app.js';
 import Rating from '../src/models/Rating.js';
 import Room from '../src/models/Room.js';
 import type { IUser } from '../src/models/User.js';
 import User from '../src/models/User.js';
+
 import { roomFixtures } from './fixtures/room.fixture.js';
 import { validObjectId } from './fixtures/shared.js';
 import { userFixtures } from './fixtures/user.fixture.js';
@@ -81,7 +82,10 @@ describe('Ratings API (Integration)', () => {
       expect(res.status).toBe(201);
       expect(res.body.message).toBe('Rating saved successfully');
 
-      const ratingsCount = await Rating.countDocuments({ user: testUser._id, room: targetRoom._id });
+      const ratingsCount = await Rating.countDocuments({
+        user: testUser._id,
+        room: targetRoom._id,
+      });
       expect(ratingsCount).toBe(1);
 
       const rating = await Rating.findOne({ user: testUser._id, room: targetRoom._id });
@@ -111,8 +115,7 @@ describe('Ratings API (Integration)', () => {
         { user: thirdUser._id, room: targetRoom._id, score: 4 },
       ]);
 
-      const res = await request(app)
-        .get(`/api/v1/ratings/${targetRoom._id.toString()}`);
+      const res = await request(app).get(`/api/v1/ratings/${targetRoom._id.toString()}`);
 
       expect(res.status).toBe(200);
       expect(res.body.totalCount).toBe(3);
@@ -124,8 +127,7 @@ describe('Ratings API (Integration)', () => {
     });
 
     it('should return default schema when zero reviews exist', async () => {
-      const res = await request(app)
-        .get(`/api/v1/ratings/${validObjectId}`);
+      const res = await request(app).get(`/api/v1/ratings/${validObjectId}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
