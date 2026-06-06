@@ -1,0 +1,1867 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Hotel Booking API",
+    "description": "Contract between the Express backend and frontend",
+    "version": "1.0.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter the JWT token in the format: Bearer <token>"
+      }
+    },
+    "schemas": {
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User logged in successfully"
+          },
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsIn..."
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "5d7a4c2e8b1f6a390e4d2c1b"
+              },
+              "firstName": {
+                "type": "string",
+                "example": "John"
+              },
+              "lastName": {
+                "type": "string",
+                "example": "Doe"
+              },
+              "gender": {
+                "type": "string",
+                "example": "male"
+              },
+              "birthdate": {
+                "type": "string",
+                "example": "1995-05-15"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "example": "john.doe@example.com"
+              },
+              "specialOffer": {
+                "type": "boolean"
+              },
+              "avatarUrl": {
+                "type": "string",
+                "example": ""
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "admin"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "firstName",
+              "lastName",
+              "gender",
+              "birthdate",
+              "email",
+              "specialOffer",
+              "avatarUrl",
+              "role"
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "token",
+          "user"
+        ]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Bad request"
+          },
+          "status": {
+            "type": "string",
+            "example": "fail"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "example": "checkOut"
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Check-out date must be after check-in date"
+                }
+              },
+              "required": [
+                "field",
+                "message"
+              ]
+            }
+          }
+        },
+        "required": [
+          "message",
+          "status",
+          "errors"
+        ]
+      },
+      "BaseMessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Invalid credentials"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "LoginUserRequestBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "RegisterUserRequestBody": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gender": {
+            "type": "string",
+            "minLength": 1
+          },
+          "birthdate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          },
+          "specialOffer": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "gender",
+          "birthdate",
+          "email",
+          "password"
+        ]
+      },
+      "BookingPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "nights": {
+            "type": "number",
+            "example": 6
+          },
+          "discount": {
+            "type": "number",
+            "example": 0
+          },
+          "pricePerNight": {
+            "type": "number",
+            "example": 5000
+          },
+          "basePrice": {
+            "type": "number",
+            "example": 30000
+          },
+          "servicePrice": {
+            "type": "number",
+            "example": 1000
+          },
+          "additionalServicePrice": {
+            "type": "number",
+            "example": 1500
+          },
+          "additionalServiceSummary": {
+            "type": "object",
+            "properties": {
+              "dinner": {
+                "type": "number"
+              },
+              "desk": {
+                "type": "number"
+              },
+              "highchair": {
+                "type": "number"
+              },
+              "crib": {
+                "type": "number"
+              },
+              "TV": {
+                "type": "number"
+              },
+              "shampoo": {
+                "type": "number"
+              }
+            }
+          },
+          "totalPrice": {
+            "type": "number",
+            "example": 32500
+          }
+        },
+        "required": [
+          "nights",
+          "discount",
+          "pricePerNight",
+          "basePrice",
+          "servicePrice",
+          "additionalServicePrice",
+          "additionalServiceSummary",
+          "totalPrice"
+        ]
+      },
+      "BookingRequestBody": {
+        "type": "object",
+        "properties": {
+          "checkIn": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-06T12:00:00.000Z"
+          },
+          "checkOut": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-06T12:00:00.000Z"
+          },
+          "additionalServices": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "dinner",
+                "desk",
+                "highchair",
+                "crib",
+                "TV",
+                "shampoo"
+              ]
+            },
+            "default": []
+          },
+          "guests": {
+            "type": "object",
+            "properties": {
+              "adult": {
+                "type": "number",
+                "minimum": 0,
+                "default": 0
+              },
+              "child": {
+                "type": "number",
+                "minimum": 0,
+                "default": 0
+              },
+              "baby": {
+                "type": "number",
+                "minimum": 0,
+                "default": 0
+              }
+            },
+            "default": {
+              "adult": 0,
+              "child": 0,
+              "baby": 0
+            }
+          }
+        },
+        "required": [
+          "checkIn",
+          "checkOut"
+        ]
+      },
+      "BookingResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "MongoDB ObjectId virtual id",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
+          "user": {
+            "type": "string",
+            "description": "User ObjectId ref",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
+          "room": {
+            "type": "string",
+            "description": "Room ObjectId ref",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
+          "checkIn": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-01T12:00:00.000Z"
+          },
+          "checkOut": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-07T12:00:00.000Z"
+          },
+          "guests": {
+            "type": "object",
+            "properties": {
+              "adult": {
+                "type": "number",
+                "default": 0
+              },
+              "child": {
+                "type": "number",
+                "default": 0
+              },
+              "baby": {
+                "type": "number",
+                "default": 0
+              }
+            }
+          },
+          "additionalServices": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "dinner",
+                "desk",
+                "highchair",
+                "crib",
+                "TV",
+                "shampoo"
+              ]
+            }
+          },
+          "priceSummary": {
+            "type": "object",
+            "properties": {
+              "nights": {
+                "type": "number",
+                "example": 6
+              },
+              "discount": {
+                "type": "number",
+                "example": 0
+              },
+              "pricePerNight": {
+                "type": "number",
+                "example": 5000
+              },
+              "basePrice": {
+                "type": "number",
+                "example": 30000
+              },
+              "servicePrice": {
+                "type": "number",
+                "example": 1000
+              },
+              "additionalServicePrice": {
+                "type": "number",
+                "example": 1500
+              },
+              "additionalServiceSummary": {
+                "type": "object",
+                "properties": {
+                  "dinner": {
+                    "type": "number"
+                  },
+                  "desk": {
+                    "type": "number"
+                  },
+                  "highchair": {
+                    "type": "number"
+                  },
+                  "crib": {
+                    "type": "number"
+                  },
+                  "TV": {
+                    "type": "number"
+                  },
+                  "shampoo": {
+                    "type": "number"
+                  }
+                }
+              },
+              "totalPrice": {
+                "type": "number",
+                "example": 32500
+              }
+            },
+            "required": [
+              "nights",
+              "discount",
+              "pricePerNight",
+              "basePrice",
+              "servicePrice",
+              "additionalServicePrice",
+              "additionalServiceSummary",
+              "totalPrice"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "room",
+          "checkIn",
+          "checkOut",
+          "guests",
+          "additionalServices",
+          "priceSummary",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateRatingRequestBody": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        "required": [
+          "score"
+        ]
+      },
+      "RatingSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "number",
+            "example": 12
+          },
+          "avgScore": {
+            "type": "number",
+            "example": 4.5
+          },
+          "scoreBreakdown": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "example": {
+              "1": 0,
+              "2": 1,
+              "3": 2,
+              "4": 4,
+              "5": 5
+            }
+          }
+        },
+        "required": [
+          "totalCount",
+          "avgScore",
+          "scoreBreakdown"
+        ]
+      },
+      "CreateReviewRequestBody": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "roomId": {
+            "type": "string",
+            "description": "MongoDB ObjectId hex string",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          }
+        },
+        "required": [
+          "text",
+          "roomId"
+        ]
+      },
+      "PaginatedReviewsResponse": {
+        "type": "object",
+        "properties": {
+          "docs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewItem"
+            }
+          },
+          "totalDocs": {
+            "type": "number",
+            "example": 42
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 5
+          },
+          "pagingCounter": {
+            "type": "number",
+            "example": 1
+          },
+          "hasPrevPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "prevPage": {
+            "type": "number",
+            "nullable": true
+          },
+          "nextPage": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "docs",
+          "totalDocs",
+          "limit",
+          "page",
+          "totalPages",
+          "pagingCounter",
+          "hasPrevPage",
+          "hasNextPage",
+          "prevPage",
+          "nextPage"
+        ]
+      },
+      "ReviewItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
+          "authorName": {
+            "type": "string",
+            "example": "Ivan Ivanov"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://example.com"
+          },
+          "text": {
+            "type": "string",
+            "example": "Great room, very clean!"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "likeCount": {
+            "type": "integer",
+            "example": 5
+          },
+          "isLiked": {
+            "type": "boolean",
+            "description": "True if current user liked this review"
+          }
+        },
+        "required": [
+          "id",
+          "authorName",
+          "avatarUrl",
+          "text",
+          "createdAt",
+          "likeCount",
+          "isLiked"
+        ]
+      },
+      "ToggleLikeResponse": {
+        "type": "object",
+        "properties": {
+          "likeCount": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 6
+          },
+          "isLiked": {
+            "type": "boolean",
+            "description": "The new like status for the current user"
+          }
+        },
+        "required": [
+          "likeCount",
+          "isLiked"
+        ]
+      },
+      "PaginatedRoomsResponse": {
+        "type": "object",
+        "properties": {
+          "docs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomResponse"
+            }
+          },
+          "totalDocs": {
+            "type": "number",
+            "example": 42
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 5
+          },
+          "pagingCounter": {
+            "type": "number",
+            "example": 1
+          },
+          "hasPrevPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "prevPage": {
+            "type": "number",
+            "nullable": true
+          },
+          "nextPage": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "docs",
+          "totalDocs",
+          "limit",
+          "page",
+          "totalPages",
+          "pagingCounter",
+          "hasPrevPage",
+          "hasNextPage",
+          "prevPage",
+          "nextPage"
+        ]
+      },
+      "RoomResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
+          "number": {
+            "type": "number",
+            "example": 840
+          },
+          "price": {
+            "type": "number",
+            "example": 5000
+          },
+          "capacity": {
+            "type": "number",
+            "example": 4
+          },
+          "bed": {
+            "type": "number",
+            "example": 2
+          },
+          "bedroom": {
+            "type": "number",
+            "example": 1
+          },
+          "bathroom": {
+            "type": "number",
+            "example": 1
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "avgRating": {
+            "type": "number",
+            "example": 4.5
+          },
+          "reviewsCount": {
+            "type": "number",
+            "example": 12
+          },
+          "accessibility": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "wideCorridor",
+                "assistant"
+              ]
+            }
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "smokeAllowed",
+                "petsAllowed",
+                "guestsAllowed"
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "price",
+          "capacity",
+          "bed",
+          "bedroom",
+          "bathroom",
+          "isAvailable",
+          "avgRating",
+          "reviewsCount",
+          "accessibility",
+          "rules",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "gender": {
+            "type": "string",
+            "example": "male"
+          },
+          "birthdate": {
+            "type": "string",
+            "example": "1995-05-15"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "specialOffer": {
+            "type": "boolean"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "example": "https://example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ],
+            "example": "user"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "gender",
+          "birthdate",
+          "email",
+          "specialOffer",
+          "avatarUrl",
+          "role",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/api/users/login": {
+      "post": {
+        "summary": "Authenticate user and get token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginUserRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User authenticated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/register": {
+      "post": {
+        "summary": "Register a new user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookings/{roomId}/preview": {
+      "post": {
+        "summary": "Get booking price preview",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "roomId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Price preview calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookings/{roomId}/confirm": {
+      "post": {
+        "summary": "Confirm and create room booking",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "roomId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation or overlapping error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ratings/{roomId}": {
+      "post": {
+        "summary": "Create or update room rating",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "roomId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRatingRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rating saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get room rating summary and score breakdown",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "roomId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rating summary retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RatingSummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "post": {
+        "summary": "Create a new review for a room",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReviewRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/{roomId}": {
+      "get": {
+        "summary": "Get paginated reviews for a room (Optional Auth)",
+        "description": "Public endpoint. If Bearer token is provided, isLiked field will reflect current user status.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "roomId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1,
+              "description": "Page number",
+              "example": 1
+            },
+            "required": false,
+            "description": "Page number",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 10,
+              "description": "Items per page",
+              "example": 10
+            },
+            "required": false,
+            "description": "Items per page",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text",
+                "likes",
+                "createAt"
+              ],
+              "default": "createAt",
+              "example": "createAt"
+            },
+            "required": false,
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "default": 1,
+              "description": "1 for ASC, -1 for DESC",
+              "example": 1
+            },
+            "required": false,
+            "description": "1 for ASC, -1 for DESC",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated reviews list retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedReviewsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/{reviewId}/toggle-like": {
+      "put": {
+        "summary": "Toggle like status on a review",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "reviewId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Like status toggled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToggleLikeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/search": {
+      "get": {
+        "summary": "Search for available rooms based on criteria",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-06-06T12:00:00.000Z"
+            },
+            "required": true,
+            "name": "checkIn",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-06-06T12:00:00.000Z"
+            },
+            "required": true,
+            "name": "checkOut",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            },
+            "required": false,
+            "name": "minPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0
+            },
+            "required": false,
+            "name": "maxPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "adult": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "child": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "baby": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 0
+                }
+              },
+              "default": {
+                "adult": 0,
+                "child": 0,
+                "baby": 0
+              }
+            },
+            "required": false,
+            "name": "guests",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "bed": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "bedroom": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "bathroom": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 0
+                }
+              },
+              "default": {
+                "bed": 0,
+                "bedroom": 0,
+                "bathroom": 0
+              }
+            },
+            "required": false,
+            "name": "amenities",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "wideCorridor",
+                  "assistant"
+                ]
+              },
+              "default": []
+            },
+            "required": false,
+            "name": "accessibility",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "smokeAllowed",
+                  "petsAllowed",
+                  "guestsAllowed"
+                ]
+              },
+              "default": []
+            },
+            "required": false,
+            "name": "rules",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "price",
+                "roomNumber",
+                "avgRating",
+                "reviewsCount",
+                "createAt"
+              ],
+              "default": "createAt"
+            },
+            "required": false,
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "default": 1,
+              "description": "1 for ASC, -1 for DESC",
+              "example": 1
+            },
+            "required": false,
+            "description": "1 for ASC, -1 for DESC",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 12
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated available rooms list retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedRoomsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or incorrect date range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rooms/{id}": {
+      "get": {
+        "summary": "Get room profile details by ID",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "summary": "Get current authorized user profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user profile data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "Get user profile by ID",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "MongoDB ObjectId hex string",
+              "example": "5d7a4c2e8b1f6a390e4d2c1b"
+            },
+            "required": true,
+            "description": "MongoDB ObjectId hex string",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
