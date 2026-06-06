@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon --exec tsx src/index.ts",
+    "dev": "nodemon --exec tsx --env-file=.env src/index.ts",
     "build": "tsc && cpy public dist/public",
     "start": "node dist/index.js",
     "lint": "eslint .",
@@ -42,6 +42,7 @@
     "vitest": "^4.1.7"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.5.0",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
