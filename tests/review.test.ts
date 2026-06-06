@@ -49,6 +49,7 @@ describe('Reviews API (Integration)', () => {
       });
 
       expect(res.status).toBe(400);
+      expect(res.body.message).toBe('Bad request');
     });
 
     it('should return 401 when user is not authenticated', async () => {
@@ -58,6 +59,7 @@ describe('Reviews API (Integration)', () => {
       });
 
       expect(res.status).toBe(401);
+      expect(res.body.message).toBe('Unauthorized');
     });
   });
 
@@ -112,7 +114,9 @@ describe('Reviews API (Integration)', () => {
 
       expect(otherRes.status).toBe(400);
       expect(otherRes.body.errors[0].field).toBe('limit');
-      expect(otherRes.body.errors[0].message).toBe('Limit must be a positive number');
+      expect(otherRes.body.errors[0].message).toBe(
+        'Invalid input: expected number, received string',
+      );
     });
 
     it('should return "isLiked"=true for liked posts for an authenticated user', async () => {

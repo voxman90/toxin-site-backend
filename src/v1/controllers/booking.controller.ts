@@ -6,7 +6,7 @@ import type { AuthorizedRequest } from '../../@types/express.js';
 import Booking from '../../models/Booking.js';
 import Room from '../../models/Room.js';
 import Service from '../../models/Service.js';
-import { bookingBodySchema, bookingParamsSchema } from '../../schemas/booking.schema.js';
+import { createBookingSchema, getBookingPreviewSchema } from '../../schemas/booking.schema.js';
 import { handleControllerError } from '../../utils/handleError.js';
 
 interface CalculateBookingPreviewParams {
@@ -51,10 +51,12 @@ const calculateBookingPreview = async ({
 
 export const getBookingPreview = async (req: Request, res: Response) => {
   try {
-    const params = await bookingParamsSchema.parseAsync(req.params);
-    const body = await bookingBodySchema.parseAsync(req.body);
+    const { params, body } = await getBookingPreviewSchema.parseAsync({
+      params: req.params,
+      body: req.body,
+    });
     const { roomId } = params;
-    const { checkIn, checkOut, 'additionalServices[]': additionalServices } = body;
+    const { checkIn, checkOut, additionalServices } = body;
 
     const room = await Room.findById(roomId);
 
@@ -77,16 +79,16 @@ export const getBookingPreview = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: AuthorizedRequest, res: Response) => {
   try {
-    const params = await bookingParamsSchema.parseAsync(req.params);
-    const body = await bookingBodySchema.parseAsync(req.body);
+    const { params, body } = await createBookingSchema.parseAsync({
+      params: req.params,
+      body: req.body,
+    });
     const { roomId } = params;
     const {
       checkIn,
       checkOut,
-      'guests[adult]': adultQuery,
-      'guests[child]': childQuery,
-      'guests[baby]': babyQuery,
-      'additionalServices[]': additionalServices,
+      guests: { adult, child, baby },
+      additionalServices,
     } = body;
     const { user } = req;
     const userId = user?._id;
@@ -125,9 +127,9 @@ export const createBooking = async (req: AuthorizedRequest, res: Response) => {
       checkIn,
       checkOut,
       guests: {
-        adult: adultQuery,
-        child: childQuery,
-        baby: babyQuery,
+        adult,
+        child,
+        baby,
       },
       additionalServices,
       priceSummary,

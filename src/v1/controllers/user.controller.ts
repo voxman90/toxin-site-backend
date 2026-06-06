@@ -7,7 +7,7 @@ import { handleControllerError } from '../../utils/handleError.js';
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
-    const params = await getUserByIdSchema.shape.params.parseAsync(req.params);
+    const { params } = await getUserByIdSchema.parseAsync({ params: req.params });
     const { id } = params;
 
     const user = await User.findById(id).select('-password');

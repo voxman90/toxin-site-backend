@@ -35,8 +35,8 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-01T00:00:00Z',
           checkOut: '2030-07-05T00:00:00Z',
-          'guests[adult]': '1',
-          'additionalServices[]': ['crib', 'TV'],
+          guests: { adult: 1 },
+          additionalServices: ['crib', 'TV'],
         });
 
       const bookingPreview: BookingPreview = {
@@ -63,7 +63,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-01T00:00:00Z',
           checkOut: '2030-07-05',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       expect(res.status).toBe(400);
@@ -79,12 +79,12 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-01T00:00:00Z',
           checkOut: '2030-07-05T00:00:00Z',
-          'guests[adult]': '1',
-          'additionalServices[]': ['Wololo!'],
+          guests: { adult: 1 },
+          additionalServices: ['Wololo!'],
         });
 
       expect(res.status).toBe(400);
-      expect(res.body.errors[0].field).toBe('additionalServices[].0');
+      expect(res.body.errors[0].field).toBe('additionalServices.0');
       expect(res.body.errors[0].message).toBe('Invalid service name');
     });
 
@@ -94,7 +94,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-06-27T00:00:00Z',
           checkOut: '2030-06-26T00:00:00Z',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       expect(res.status).toBe(400);
@@ -111,8 +111,8 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-01T00:00:00Z',
           checkOut: '2030-07-05T00:00:00Z',
-          'guests[adult]': '1',
-          'additionalServices[]': ['crib', 'TV'],
+          guests: { adult: 1 },
+          additionalServices: ['crib', 'TV'],
         });
 
       expect(res.status).toBe(201);
@@ -153,7 +153,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-01T00:00:00Z',
           checkOut: '2030-07-05T00:00:00Z',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       const res = await request(app)
@@ -162,7 +162,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-03T00:00:00Z',
           checkOut: '2030-07-09T00:00:00Z',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       expect(res.status).toBe(400);
@@ -173,7 +173,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-06-28T00:00:00Z',
           checkOut: '2030-07-02T00:00:00Z',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       expect(resTwo.status).toBe(400);
@@ -184,7 +184,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-06-28T00:00:00Z',
           checkOut: '2030-07-28T00:00:00Z',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       expect(resThree.status).toBe(400);
@@ -195,7 +195,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-02T00:00:00Z',
           checkOut: '2030-07-04T00:00:00Z',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       expect(resFour.status).toBe(400);
@@ -207,7 +207,7 @@ describe('Bookings API (Integration)', () => {
         .send({
           checkIn: '2030-07-01T00:00:00Z',
           checkOut: '2030-07-05T00:00:00Z',
-          'guests[adult]': '1',
+          guests: { adult: 1 },
         });
 
       expect(res.status).toBe(401);

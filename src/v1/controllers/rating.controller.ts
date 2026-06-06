@@ -11,9 +11,10 @@ export const createRating = async (req: AuthorizedRequest, res: Response) => {
   const session = await mongoose.startSession();
 
   try {
-    const params = await createRatingSchema.shape.params.parseAsync(req.params);
-    const body = await createRatingSchema.shape.body.parseAsync(req.body);
-
+    const { params, body } = await createRatingSchema.parseAsync({
+      params: req.params,
+      body: req.body,
+    });
     const { roomId } = params;
     const { score } = body;
     const userId = req.user?._id;
@@ -70,7 +71,7 @@ export const createRating = async (req: AuthorizedRequest, res: Response) => {
 
 export const getRatingSummary = async (req: AuthorizedRequest, res: Response) => {
   try {
-    const params = await getRatingSummarySchema.shape.params.parseAsync(req.params);
+    const { params } = await getRatingSummarySchema.parseAsync({ params: req.params });
     const { roomId } = params;
 
     const [stats] = await Rating.aggregate([

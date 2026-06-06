@@ -1,25 +1,30 @@
-import { z } from 'zod';
+import { z } from '../config/zod.js';
+import { ADDITIONAL_SERVICES, MONGO_ID_MOCK } from '../constants/constants.js';
 
-import { ADDITIONAL_SERVICES } from '../constants/constants.js';
-
-import { ensureArray, ensureISODate, ensureObjectId } from './shared.js';
+import { ensureISODate, ensureObjectId } from './shared.js';
 
 export const bookingParamsSchema = z.object({
   roomId: ensureObjectId('room ID'),
 });
 
-export const bookingBodySchema = z
+export const BookingBodyContractSchema = z
   .object({
     checkIn: ensureISODate('check-in'),
     checkOut: ensureISODate('check-out'),
-    'additionalServices[]': ensureArray
-      .pipe(z.array(z.enum(ADDITIONAL_SERVICES, { message: 'Invalid service name' })))
+    additionalServices: z
+      .array(z.enum(ADDITIONAL_SERVICES, { message: 'Invalid service name' }))
       .optional()
       .default([]),
-    'guests[adult]': z.coerce.number().nonnegative().optional().default(0),
-    'guests[child]': z.coerce.number().nonnegative().optional().default(0),
-    'guests[baby]': z.coerce.number().nonnegative().optional().default(0),
+    guests: z
+      .object({
+        adult: z.number().nonnegative().optional().default(0),
+        child: z.number().nonnegative().optional().default(0),
+        baby: z.number().nonnegative().optional().default(0),
+      })
+      .optional()
+      .default({ adult: 0, child: 0, baby: 0 }),
   })
+  .openapi('BookingRequestBody')
   .refine(
     (body) => {
       const { checkOut, checkIn } = body;
@@ -35,7 +40,57 @@ export const bookingBodySchema = z
       path: ['checkOut'],
     },
   )
-  .refine((body) => body['guests[adult]'] + body['guests[child]'] > 0, {
-    message: 'There must be at least one guest',
-    path: ['guests[adult]'],
-  });
+  .refine(
+    (body) => {
+      const adult = body.guests?.adult ?? 0;
+      const child = body.guests?.child ?? 0;
+
+      return adult + child > 0;
+    },
+    {
+      message: 'There must be at least one guest',
+      path: ['guests', 'adult'],
+    },
+  );
+
+export const getBookingPreviewSchema = z.object({
+  params: bookingParamsSchema,
+  body: BookingBodyContractSchema,
+});
+
+export const createBookingSchema = z.object({
+  params: bookingParamsSchema,
+  body: BookingBodyContractSchema,
+});
+
+const priceSummarySchema = z.object({
+  nights: z.number().openapi({ example: 6 }),
+  discount: z.number().openapi({ example: 0 }),
+  pricePerNight: z.number().openapi({ example: 5000 }),
+  basePrice: z.number().openapi({ example: 30000 }),
+  servicePrice: z.number().openapi({ example: 1000 }),
+  additionalServicePrice: z.number().openapi({ example: 1500 }),
+  additionalServiceSummary: z.record(z.enum(ADDITIONAL_SERVICES), z.number()),
+  totalPrice: z.number().openapi({ example: 32500 }),
+});
+
+export const BookingPreviewResponseSchema = priceSummarySchema.openapi('BookingPreviewResponse');
+
+export const BookingResponseSchema = z
+  .object({
+    id: z.string().openapi({ description: 'MongoDB ObjectId virtual id', example: MONGO_ID_MOCK }),
+    user: z.string().openapi({ description: 'User ObjectId ref', example: MONGO_ID_MOCK }),
+    room: z.string().openapi({ description: 'Room ObjectId ref', example: MONGO_ID_MOCK }),
+    checkIn: z.iso.datetime().openapi({ example: '2026-06-01T12:00:00.000Z' }),
+    checkOut: z.iso.datetime().openapi({ example: '2026-06-07T12:00:00.000Z' }),
+    guests: z.object({
+      adult: z.number().default(0),
+      child: z.number().default(0),
+      baby: z.number().default(0),
+    }),
+    additionalServices: z.array(z.enum(ADDITIONAL_SERVICES)),
+    priceSummary: priceSummarySchema,
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
+  })
+  .openapi('BookingResponse');

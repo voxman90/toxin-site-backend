@@ -101,6 +101,7 @@ describe('Ratings API (Integration)', () => {
         .send({ score: 5 });
 
       expect(res.status).toBe(401);
+      expect(res.body.message).toBe('Unauthorized');
     });
   });
 

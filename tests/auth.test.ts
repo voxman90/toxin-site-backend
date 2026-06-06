@@ -53,6 +53,7 @@ describe('Auth API (Integration)', () => {
       const res = await request(app).post('/api/v1/auth/register').send(userWithSameEmail);
 
       expect(res.status).toBe(409);
+      expect(res.body.message).toBe('User with this email already exists');
     });
   });
 
@@ -77,6 +78,7 @@ describe('Auth API (Integration)', () => {
       });
 
       expect(res.status).toBe(400);
+      expect(res.body.message).toBe('Bad request');
     });
 
     it('should return 401 on incorrect email or password', async () => {

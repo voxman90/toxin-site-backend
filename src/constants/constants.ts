@@ -1,8 +1,9 @@
-import type { Role } from '../@types/data.js';
+import type { Order, Role } from '../@types/data.js';
 
 export const FALLBACK_PORT = 5000;
 
 export const MONGO_ID_REGEX = /^[0-9a-fA-F]{24}$/;
+export const MONGO_ID_MOCK = '5d7a4c2e8b1f6a390e4d2c1b';
 
 export const MIN_PASSWORD_LENGTH = 6;
 
@@ -13,11 +14,11 @@ export const ROLES: { [key in Role]: key } = {
 
 export const DEFAULT_ROOMS_LIMIT = 12;
 export const DEFAULT_ROOMS_SORT = 'createAt';
-export const DEFAULT_ROOMS_ORDER = 1;
+export const DEFAULT_ROOMS_ORDER: Order = 1;
 
 export const DEFAULT_REVIEWS_LIMIT = 10;
 export const DEFAULT_REVIEWS_SORT = 'createAt';
-export const DEFAULT_REVIEWS_ORDER = 1;
+export const DEFAULT_REVIEWS_ORDER: Order = 1;
 
 export const ALLOWED_REVIEWS_SORT_FIELDS = ['text', 'likes', 'createAt'] as const;
 

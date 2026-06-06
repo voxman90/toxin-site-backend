@@ -12,7 +12,7 @@ export const createReview = async (req: AuthorizedRequest, res: Response) => {
   const session = await mongoose.startSession();
 
   try {
-    const body = await createReviewSchema.shape.body.parseAsync(req.body);
+    const { body } = await createReviewSchema.parseAsync({ body: req.body });
     const { text, roomId } = body;
     const userId = req.user?._id;
 
@@ -51,8 +51,10 @@ export const createReview = async (req: AuthorizedRequest, res: Response) => {
 
 export const getRoomReviews = async (req: AuthorizedRequest, res: Response) => {
   try {
-    const params = await getRoomReviewsSchema.shape.params.parseAsync(req.params);
-    const query = await getRoomReviewsSchema.shape.query.parseAsync(req.query);
+    const { params, query } = await getRoomReviewsSchema.parseAsync({
+      params: req.params,
+      query: req.query,
+    });
     const { roomId } = params;
     const { page, limit, sort, order } = query;
     const userId = req.user?._id;

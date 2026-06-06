@@ -5,11 +5,14 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import path from 'path';
 
+import { customQueryParser } from './config/queryParser.js';
 import v1Router from './v1/routes/index.js';
 
 const app = express();
 
 const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+app.set('query parser', customQueryParser);
 
 app.use(
   cors({
@@ -38,6 +41,7 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use('/api/v1', v1Router);

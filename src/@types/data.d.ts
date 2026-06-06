@@ -6,6 +6,8 @@ export type Accessibility = (typeof ACCESSIBILITY)[number];
 
 export type AdditionalService = (typeof ADDITIONAL_SERVICES)[number];
 
+export type Order = 1 | -1;
+
 export type Role = 'user' | 'admin';
 
 export type Guest = 'adult' | 'child' | 'baby';

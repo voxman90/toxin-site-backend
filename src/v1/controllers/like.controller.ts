@@ -7,7 +7,7 @@ import { handleControllerError } from '../../utils/handleError.js';
 
 export const toggleLike = async (req: AuthorizedRequest, res: Response) => {
   try {
-    const params = await toggleLikeSchema.shape.params.parseAsync(req.params);
+    const { params } = await toggleLikeSchema.parseAsync({ params: req.params });
     const { reviewId } = params;
     const userId = req.user?._id;
 

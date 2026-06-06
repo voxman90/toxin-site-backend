@@ -7,7 +7,7 @@ import { handleControllerError } from '../../utils/handleError.js';
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const body = await registerUserSchema.shape.body.parseAsync(req.body);
+    const { body } = await registerUserSchema.parseAsync({ body: req.body });
     const { firstName, lastName, gender, birthdate, specialOffer, email, password } = body;
 
     const userExists = await User.findOne({ email });
@@ -34,7 +34,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: Request, res: Response) => {
   try {
-    const body = await loginUserSchema.shape.body.parseAsync(req.body);
+    const { body } = await loginUserSchema.parseAsync({ body: req.body });
     const { email, password } = body;
 
     const user = await User.findOne({ email }).select('+password');
@@ -55,7 +55,7 @@ export const loginUser = async (req: Request, res: Response) => {
       message: 'User logged in successfully',
       token,
       user: {
-        id: user._id,
+        id: user._id.toString(),
         firstName: user.firstName,
         lastName: user.lastName,
         gender: user.gender,

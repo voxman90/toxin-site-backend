@@ -8,25 +8,21 @@ import { handleControllerError } from '../../utils/handleError.js';
 
 export const searchRooms = async (req: Request, res: Response) => {
   try {
-    const queryData = await searchRoomsSchema.parseAsync(req.query);
+    const { query: queryData } = await searchRoomsSchema.parseAsync({ query: req.query });
     const {
       checkIn,
       checkOut,
       minPrice,
       maxPrice,
-      'guests[adult]': adultQuery,
-      'guests[child]': childQuery,
-      'amenities[bed]': bedQuery,
-      'amenities[bedroom]': bedroomQuery,
-      'amenities[bathroom]': bathroomQuery,
-      'accessibility[]': accessibilityQuery,
-      'rules[]': rulesQuery,
+      guests: { adult, child },
+      amenities: { bed, bedroom, bathroom },
+      accessibility,
+      rules,
       sort,
       order,
       limit,
       page,
     } = queryData;
-
     const query: QueryFilter<IRoom> = { isAvailable: true };
 
     if (minPrice || maxPrice) {
@@ -37,27 +33,27 @@ export const searchRooms = async (req: Request, res: Response) => {
       if (maxPrice) query.price.$lte = maxPrice;
     }
 
-    const totalGuests = adultQuery + childQuery;
+    const totalGuests = adult + child;
 
     if (totalGuests > 0) {
       query.capacity = { $gte: totalGuests };
     }
 
-    if (bedQuery) query.bed = { $gte: bedQuery };
+    if (bed) query.bed = { $gte: bed };
 
-    if (bedroomQuery) query.bedroom = { $gte: bedroomQuery };
+    if (bedroom) query.bedroom = { $gte: bedroom };
 
-    if (bathroomQuery) query.bathroom = { $gte: bathroomQuery };
+    if (bathroom) query.bathroom = { $gte: bathroom };
 
-    if (rulesQuery) {
-      query.rules = { $all: rulesQuery };
+    if (rules && rules.length > 0) {
+      query.rules = { $all: rules };
     }
 
-    if (accessibilityQuery) {
-      query.accessibility = { $all: accessibilityQuery };
+    if (accessibility && accessibility.length > 0) {
+      query.accessibility = { $all: accessibility };
     }
 
-    const aggregatedRooms = Room.aggregate([
+    const aggregatedRoomsPromise = Room.aggregate([
       { $match: query },
       {
         $lookup: {
@@ -88,7 +84,7 @@ export const searchRooms = async (req: Request, res: Response) => {
 
     const options = { page, limit };
 
-    const result = await Room.aggregatePaginate(aggregatedRooms, options);
+    const result = await Room.aggregatePaginate(aggregatedRoomsPromise, options);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -98,7 +94,7 @@ export const searchRooms = async (req: Request, res: Response) => {
 
 export const getRoomById = async (req: Request, res: Response) => {
   try {
-    const params = await getRoomByIdSchema.parseAsync(req.params);
+    const { params } = await getRoomByIdSchema.parseAsync({ params: req.params });
 
     const room = await Room.findById(params.id);
 
