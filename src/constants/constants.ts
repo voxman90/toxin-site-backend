@@ -42,6 +42,8 @@ export const ADDITIONAL_SERVICES = [
 export const ACCESSIBILITY = ['wideCorridor', 'assistant'] as const;
 export const RULES = ['smokeAllowed', 'petsAllowed', 'guestsAllowed'] as const;
 
+export const SCORE = ['1', '2', '3', '4', '5'] as const;
+
 export const ROOM_IMGS: string[] = Array.from({ length: 9 }).map((_, i) => `room${i + 1}.jpg`);
 
 export const MIN_RATING_SCORE = 1;

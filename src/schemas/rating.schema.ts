@@ -1,5 +1,5 @@
 import { z } from '../config/zod.js';
-import { MAX_RATING_SCORE, MIN_RATING_SCORE } from '../constants/constants.js';
+import { MAX_RATING_SCORE, MIN_RATING_SCORE, SCORE } from '../constants/constants.js';
 
 import { ensureObjectId, makeMessageResponseSchema } from './shared.js';
 
@@ -7,7 +7,7 @@ export const RatingSummarySchema = z
   .object({
     totalCount: z.number().openapi({ example: 12 }),
     avgScore: z.number().openapi({ example: 4.5 }),
-    scoreBreakdown: z.record(z.string(), z.number()).openapi({
+    scoreBreakdown: z.record(z.enum(SCORE), z.number()).openapi({
       example: { '1': 0, '2': 1, '3': 2, '4': 4, '5': 5 },
     }),
   })

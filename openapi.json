@@ -443,8 +443,22 @@
           },
           "scoreBreakdown": {
             "type": "object",
-            "additionalProperties": {
-              "type": "number"
+            "properties": {
+              "1": {
+                "type": "number"
+              },
+              "2": {
+                "type": "number"
+              },
+              "3": {
+                "type": "number"
+              },
+              "4": {
+                "type": "number"
+              },
+              "5": {
+                "type": "number"
+              }
             },
             "example": {
               "1": 0,
