@@ -2,7 +2,8 @@ import { Router } from 'express';
 
 import { protect } from '../../middlewares/auth.middleware.js';
 import {
-  RatingSummaryResponseSchema,
+  CreateRatingResponseSchema,
+  RatingSummarySchema,
   createRatingSchema,
   getRatingSummarySchema,
 } from '../../schemas/rating.schema.js';
@@ -10,30 +11,29 @@ import {
   ServerErrorResponseSchema,
   UnauthorizedResponseSchema,
   ValidationErrorResponseSchema,
-  makeMessageResponseSchema,
 } from '../../schemas/shared.js';
 import { documentEndpoint } from '../../utils/contract.js';
 import { createRating, getRatingSummary } from '../controllers/rating.controller.js';
 
 const router = Router();
 
+router.post('/:roomId', protect(), createRating);
 documentEndpoint({
   method: 'post',
-  path: '/api/ratings/{roomId}',
+  path: '/api/v1/ratings/{roomId}',
   summary: 'Create or update room rating',
   security: [{ bearerAuth: [] }],
   request: {
     params: createRatingSchema.shape.params,
     body: {
+      required: true,
       content: { 'application/json': { schema: createRatingSchema.shape.body } },
     },
   },
   responses: {
     201: {
       description: 'Rating saved successfully',
-      content: {
-        'application/json': { schema: makeMessageResponseSchema('Rating saved successfully') },
-      },
+      content: { 'application/json': { schema: CreateRatingResponseSchema } },
     },
     400: {
       description: 'Validation error',
@@ -49,11 +49,11 @@ documentEndpoint({
     },
   },
 });
-router.post('/:roomId', protect(), createRating);
 
+router.get('/:roomId', getRatingSummary);
 documentEndpoint({
   method: 'get',
-  path: '/api/ratings/{roomId}',
+  path: '/api/v1/ratings/{roomId}',
   summary: 'Get room rating summary and score breakdown',
   request: {
     params: getRatingSummarySchema.shape.params,
@@ -61,7 +61,7 @@ documentEndpoint({
   responses: {
     200: {
       description: 'Rating summary retrieved successfully',
-      content: { 'application/json': { schema: RatingSummaryResponseSchema } },
+      content: { 'application/json': { schema: RatingSummarySchema } },
     },
     400: {
       description: 'Validation error',
@@ -73,6 +73,5 @@ documentEndpoint({
     },
   },
 });
-router.get('/:roomId', getRatingSummary);
 
 export default router;

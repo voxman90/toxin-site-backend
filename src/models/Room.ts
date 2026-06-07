@@ -1,4 +1,4 @@
-import type { AggregatePaginateModel } from 'mongoose';
+import type { AggregatePaginateModel, Types } from 'mongoose';
 import { Model, Schema, model } from 'mongoose';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
@@ -19,6 +19,12 @@ export interface IRoom {
   images: string[];
   avgRating: number;
   reviewsCount: number;
+}
+
+export interface ILeanRoom extends IRoom {
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 type RoomModel = Model<IRoom>;

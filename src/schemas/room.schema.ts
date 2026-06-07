@@ -12,6 +12,27 @@ import {
 
 import { ensureISODate, ensureObjectId, makePaginatedResponseSchema } from './shared.js';
 
+export const RoomSchema = z
+  .object({
+    id: z.string().openapi({ example: MONGO_ID_MOCK }),
+    roomNumber: z.number().openapi({ example: 840 }),
+    price: z.number().openapi({ example: 5000 }),
+    capacity: z.number().openapi({ example: 4 }),
+    bed: z.number().openapi({ example: 2 }),
+    bedroom: z.number().openapi({ example: 1 }),
+    bathroom: z.number().openapi({ example: 1 }),
+    isAvailable: z.boolean(),
+    avgRating: z.number().openapi({ example: 4.5 }),
+    reviewsCount: z.number().openapi({ example: 12 }),
+    accessibility: z.array(z.enum(ACCESSIBILITY)),
+    rules: z.array(z.enum(RULES)),
+    createdAt: z.iso.datetime(),
+    updatedAt: z.iso.datetime(),
+  })
+  .openapi('Room');
+
+export const PaginatedRoomsSchema = makePaginatedResponseSchema(RoomSchema, 'PaginatedRooms');
+
 export const SearchRoomsQueryContractSchema = z
   .object({
     checkIn: ensureISODate('check-in'),
@@ -61,27 +82,3 @@ export const getRoomByIdSchema = z.object({
 export const searchRoomsSchema = z.object({
   query: SearchRoomsQueryContractSchema,
 });
-
-export const RoomItemSchema = z
-  .object({
-    id: z.string().openapi({ example: MONGO_ID_MOCK }),
-    number: z.number().openapi({ example: 840 }),
-    price: z.number().openapi({ example: 5000 }),
-    capacity: z.number().openapi({ example: 4 }),
-    bed: z.number().openapi({ example: 2 }),
-    bedroom: z.number().openapi({ example: 1 }),
-    bathroom: z.number().openapi({ example: 1 }),
-    isAvailable: z.boolean(),
-    avgRating: z.number().openapi({ example: 4.5 }),
-    reviewsCount: z.number().openapi({ example: 12 }),
-    accessibility: z.array(z.enum(ACCESSIBILITY)),
-    rules: z.array(z.enum(RULES)),
-    createdAt: z.iso.datetime(),
-    updatedAt: z.iso.datetime(),
-  })
-  .openapi('RoomResponse');
-
-export const PaginatedRoomsResponseSchema = makePaginatedResponseSchema(
-  RoomItemSchema,
-  'PaginatedRoomsResponse',
-);

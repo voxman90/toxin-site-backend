@@ -1,6 +1,7 @@
 import { Response } from 'express';
 
 import type { AuthorizedRequest } from '../../@types/express.js';
+import type { ToggleLikeResponseDTO } from '../../@types/review.js';
 import Review from '../../models/Review.js';
 import { toggleLikeSchema } from '../../schemas/review.schema.js';
 import { handleControllerError } from '../../utils/handleError.js';
@@ -52,10 +53,12 @@ export const toggleLike = async (req: AuthorizedRequest, res: Response) => {
 
     const isLiked = review.likes.some((id) => id.equals(userId));
 
-    res.status(200).json({
+    const responseData: ToggleLikeResponseDTO = {
       likeCount: review.likes.length,
       isLiked,
-    });
+    };
+
+    res.status(200).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }

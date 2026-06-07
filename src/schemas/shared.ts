@@ -1,12 +1,12 @@
 import { z } from '../config/zod.js';
 import { MONGO_ID_MOCK, MONGO_ID_REGEX } from '../constants/constants.js';
 
-const Capitalize = (str: string) => `${str.slice(0, 1).toUpperCase()}${str.slice(1)}`;
+const capitalize = (str: string) => `${str.slice(0, 1).toUpperCase()}${str.slice(1)}`;
 
 export const ensureISODate = (name: string) =>
   z
-    .string({ message: `${Capitalize(name)} date is required` })
-    .endsWith('Z', { message: `${Capitalize(name)} date must be a UTC ISO string (ending with Z)` })
+    .string({ message: `${capitalize(name)} date is required` })
+    .endsWith('Z', { message: `${capitalize(name)} date must be a UTC ISO string (ending with Z)` })
     .openapi({
       type: 'string',
       format: 'date-time',
@@ -17,8 +17,8 @@ export const ensureISODate = (name: string) =>
 
 export const ensureObjectId = (name: string) =>
   z
-    .string({ message: `${Capitalize(name)} is required` })
-    .regex(MONGO_ID_REGEX, { message: `Invalid ${Capitalize(name)} format` })
+    .string({ message: `${capitalize(name)} is required` })
+    .regex(MONGO_ID_REGEX, { message: `Invalid ${capitalize(name)} format` })
     .openapi({
       type: 'string',
       description: 'MongoDB ObjectId hex string',

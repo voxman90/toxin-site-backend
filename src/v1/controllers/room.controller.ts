@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import type { QueryFilter } from 'mongoose';
 
-import type { IRoom } from '../../models/Room.js';
+import type { GetRoomResponseDTO, RoomDTO, SearchRoomsResponseDTO } from '../../@types/room.js';
+import type { ILeanRoom, IRoom } from '../../models/Room.js';
 import Room from '../../models/Room.js';
 import { getRoomByIdSchema, searchRoomsSchema } from '../../schemas/room.schema.js';
 import { handleControllerError } from '../../utils/handleError.js';
+import { toPaginatedRoomsDTO, toRoomDTO } from '../../utils/mappers.js';
 
 export const searchRooms = async (req: Request, res: Response) => {
   try {
@@ -84,9 +86,11 @@ export const searchRooms = async (req: Request, res: Response) => {
 
     const options = { page, limit };
 
-    const result = await Room.aggregatePaginate(aggregatedRoomsPromise, options);
+    const aggregatedRooms = await Room.aggregatePaginate<RoomDTO>(aggregatedRoomsPromise, options);
 
-    return res.status(200).json(result);
+    const responseData: SearchRoomsResponseDTO = toPaginatedRoomsDTO(aggregatedRooms);
+
+    return res.status(200).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }
@@ -96,13 +100,15 @@ export const getRoomById = async (req: Request, res: Response) => {
   try {
     const { params } = await getRoomByIdSchema.parseAsync({ params: req.params });
 
-    const room = await Room.findById(params.id);
+    const room = await Room.findById(params.id).lean<ILeanRoom>();
 
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
 
-    res.status(200).json(room);
+    const responseData: GetRoomResponseDTO = toRoomDTO(room);
+
+    res.status(200).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }

@@ -27,65 +27,79 @@
             "example": "eyJhbGciOiJIUzI1NiIsIn..."
           },
           "user": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "example": "5d7a4c2e8b1f6a390e4d2c1b"
-              },
-              "firstName": {
-                "type": "string",
-                "example": "John"
-              },
-              "lastName": {
-                "type": "string",
-                "example": "Doe"
-              },
-              "gender": {
-                "type": "string",
-                "example": "male"
-              },
-              "birthdate": {
-                "type": "string",
-                "example": "1995-05-15"
-              },
-              "email": {
-                "type": "string",
-                "format": "email",
-                "example": "john.doe@example.com"
-              },
-              "specialOffer": {
-                "type": "boolean"
-              },
-              "avatarUrl": {
-                "type": "string",
-                "example": ""
-              },
-              "role": {
-                "type": "string",
-                "enum": [
-                  "user",
-                  "admin"
-                ]
-              }
-            },
-            "required": [
-              "id",
-              "firstName",
-              "lastName",
-              "gender",
-              "birthdate",
-              "email",
-              "specialOffer",
-              "avatarUrl",
-              "role"
-            ]
+            "$ref": "#/components/schemas/User"
           }
         },
         "required": [
           "message",
           "token",
           "user"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "gender": {
+            "type": "string",
+            "example": "male"
+          },
+          "birthdate": {
+            "type": "string",
+            "example": "1995-05-15"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "specialOffer": {
+            "type": "boolean"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "example": "https://example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ],
+            "example": "user"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "gender",
+          "birthdate",
+          "email",
+          "specialOffer",
+          "avatarUrl",
+          "role",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "ValidationErrorResponse": {
@@ -138,7 +152,7 @@
           "message"
         ]
       },
-      "LoginUserRequestBody": {
+      "LoginRequestBody": {
         "type": "object",
         "properties": {
           "email": {
@@ -154,7 +168,7 @@
           "password"
         ]
       },
-      "RegisterUserRequestBody": {
+      "RegisterRequestBody": {
         "type": "object",
         "properties": {
           "firstName": {
@@ -194,7 +208,7 @@
           "password"
         ]
       },
-      "BookingPreviewResponse": {
+      "PriceSummary": {
         "type": "object",
         "properties": {
           "nights": {
@@ -319,7 +333,7 @@
           "checkOut"
         ]
       },
-      "BookingResponse": {
+      "Booking": {
         "type": "object",
         "properties": {
           "id": {
@@ -379,70 +393,7 @@
             }
           },
           "priceSummary": {
-            "type": "object",
-            "properties": {
-              "nights": {
-                "type": "number",
-                "example": 6
-              },
-              "discount": {
-                "type": "number",
-                "example": 0
-              },
-              "pricePerNight": {
-                "type": "number",
-                "example": 5000
-              },
-              "basePrice": {
-                "type": "number",
-                "example": 30000
-              },
-              "servicePrice": {
-                "type": "number",
-                "example": 1000
-              },
-              "additionalServicePrice": {
-                "type": "number",
-                "example": 1500
-              },
-              "additionalServiceSummary": {
-                "type": "object",
-                "properties": {
-                  "dinner": {
-                    "type": "number"
-                  },
-                  "desk": {
-                    "type": "number"
-                  },
-                  "highchair": {
-                    "type": "number"
-                  },
-                  "crib": {
-                    "type": "number"
-                  },
-                  "TV": {
-                    "type": "number"
-                  },
-                  "shampoo": {
-                    "type": "number"
-                  }
-                }
-              },
-              "totalPrice": {
-                "type": "number",
-                "example": 32500
-              }
-            },
-            "required": [
-              "nights",
-              "discount",
-              "pricePerNight",
-              "basePrice",
-              "servicePrice",
-              "additionalServicePrice",
-              "additionalServiceSummary",
-              "totalPrice"
-            ]
+            "$ref": "#/components/schemas/PriceSummary"
           },
           "createdAt": {
             "type": "string",
@@ -479,7 +430,7 @@
           "score"
         ]
       },
-      "RatingSummaryResponse": {
+      "RatingSummary": {
         "type": "object",
         "properties": {
           "totalCount": {
@@ -528,13 +479,13 @@
           "roomId"
         ]
       },
-      "PaginatedReviewsResponse": {
+      "PaginatedReviews": {
         "type": "object",
         "properties": {
           "docs": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ReviewItem"
+              "$ref": "#/components/schemas/Review"
             }
           },
           "totalDocs": {
@@ -585,7 +536,7 @@
           "nextPage"
         ]
       },
-      "ReviewItem": {
+      "Review": {
         "type": "object",
         "properties": {
           "id": {
@@ -646,13 +597,13 @@
           "isLiked"
         ]
       },
-      "PaginatedRoomsResponse": {
+      "PaginatedRooms": {
         "type": "object",
         "properties": {
           "docs": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RoomResponse"
+              "$ref": "#/components/schemas/Room"
             }
           },
           "totalDocs": {
@@ -703,14 +654,14 @@
           "nextPage"
         ]
       },
-      "RoomResponse": {
+      "Room": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "example": "5d7a4c2e8b1f6a390e4d2c1b"
           },
-          "number": {
+          "roomNumber": {
             "type": "number",
             "example": 840
           },
@@ -777,7 +728,7 @@
         },
         "required": [
           "id",
-          "number",
+          "roomNumber",
           "price",
           "capacity",
           "bed",
@@ -791,85 +742,20 @@
           "createdAt",
           "updatedAt"
         ]
-      },
-      "UserResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "5d7a4c2e8b1f6a390e4d2c1b"
-          },
-          "firstName": {
-            "type": "string",
-            "example": "John"
-          },
-          "lastName": {
-            "type": "string",
-            "example": "Doe"
-          },
-          "gender": {
-            "type": "string",
-            "example": "male"
-          },
-          "birthdate": {
-            "type": "string",
-            "example": "1995-05-15"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "example": "john.doe@example.com"
-          },
-          "specialOffer": {
-            "type": "boolean"
-          },
-          "avatarUrl": {
-            "type": "string",
-            "example": "https://example.com"
-          },
-          "role": {
-            "type": "string",
-            "enum": [
-              "user",
-              "admin"
-            ],
-            "example": "user"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "firstName",
-          "lastName",
-          "gender",
-          "birthdate",
-          "email",
-          "specialOffer",
-          "avatarUrl",
-          "role",
-          "createdAt",
-          "updatedAt"
-        ]
       }
     },
     "parameters": {}
   },
   "paths": {
-    "/api/users/login": {
+    "/api/v1/auth/login": {
       "post": {
         "summary": "Authenticate user and get token",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginUserRequestBody"
+                "$ref": "#/components/schemas/LoginRequestBody"
               }
             }
           }
@@ -918,14 +804,15 @@
         }
       }
     },
-    "/api/users/register": {
+    "/api/v1/auth/register": {
       "post": {
         "summary": "Register a new user",
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterUserRequestBody"
+                "$ref": "#/components/schemas/RegisterRequestBody"
               }
             }
           }
@@ -974,7 +861,7 @@
         }
       }
     },
-    "/api/bookings/{roomId}/preview": {
+    "/api/v1/bookings/{roomId}/preview": {
       "post": {
         "summary": "Get booking price preview",
         "parameters": [
@@ -991,6 +878,7 @@
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1005,7 +893,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookingPreviewResponse"
+                  "$ref": "#/components/schemas/PriceSummary"
                 }
               }
             }
@@ -1043,7 +931,7 @@
         }
       }
     },
-    "/api/bookings/{roomId}/confirm": {
+    "/api/v1/bookings/{roomId}/confirm": {
       "post": {
         "summary": "Confirm and create room booking",
         "security": [
@@ -1065,6 +953,7 @@
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1079,7 +968,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookingResponse"
+                  "$ref": "#/components/schemas/Booking"
                 }
               }
             }
@@ -1127,7 +1016,7 @@
         }
       }
     },
-    "/api/ratings/{roomId}": {
+    "/api/v1/ratings/{roomId}": {
       "post": {
         "summary": "Create or update room rating",
         "security": [
@@ -1149,6 +1038,7 @@
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1221,7 +1111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RatingSummaryResponse"
+                  "$ref": "#/components/schemas/RatingSummary"
                 }
               }
             }
@@ -1249,7 +1139,7 @@
         }
       }
     },
-    "/api/reviews": {
+    "/api/v1/reviews": {
       "post": {
         "summary": "Create a new review for a room",
         "security": [
@@ -1258,6 +1148,7 @@
           }
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -1310,7 +1201,7 @@
         }
       }
     },
-    "/api/reviews/{roomId}": {
+    "/api/v1/reviews/{roomId}": {
       "get": {
         "summary": "Get paginated reviews for a room (Optional Auth)",
         "description": "Public endpoint. If Bearer token is provided, isLiked field will reflect current user status.",
@@ -1388,7 +1279,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedReviewsResponse"
+                  "$ref": "#/components/schemas/PaginatedReviews"
                 }
               }
             }
@@ -1416,7 +1307,7 @@
         }
       }
     },
-    "/api/reviews/{reviewId}/toggle-like": {
+    "/api/v1/reviews/{reviewId}/toggle-like": {
       "put": {
         "summary": "Toggle like status on a review",
         "security": [
@@ -1481,7 +1372,7 @@
         }
       }
     },
-    "/api/rooms/search": {
+    "/api/v1/rooms/search": {
       "get": {
         "summary": "Search for available rooms based on criteria",
         "parameters": [
@@ -1673,7 +1564,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedRoomsResponse"
+                  "$ref": "#/components/schemas/PaginatedRooms"
                 }
               }
             }
@@ -1701,7 +1592,7 @@
         }
       }
     },
-    "/api/rooms/{id}": {
+    "/api/v1/rooms/{id}": {
       "get": {
         "summary": "Get room profile details by ID",
         "parameters": [
@@ -1723,7 +1614,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoomResponse"
+                  "$ref": "#/components/schemas/Room"
                 }
               }
             }
@@ -1761,7 +1652,7 @@
         }
       }
     },
-    "/api/users/me": {
+    "/api/v1/users/me": {
       "get": {
         "summary": "Get current authorized user profile",
         "security": [
@@ -1775,7 +1666,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -1803,7 +1694,7 @@
         }
       }
     },
-    "/api/users/{id}": {
+    "/api/v1/users/{id}": {
       "get": {
         "summary": "Get user profile by ID",
         "parameters": [
@@ -1825,7 +1716,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }

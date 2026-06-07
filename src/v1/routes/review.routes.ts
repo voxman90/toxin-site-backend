@@ -2,7 +2,8 @@ import { Router } from 'express';
 
 import { protect } from '../../middlewares/auth.middleware.js';
 import {
-  PaginatedReviewsResponseSchema,
+  CreateReviewResponseSchema,
+  PaginatedReviewsSchema,
   ToggleLikeResponseSchema,
   createReviewSchema,
   getRoomReviewsSchema,
@@ -12,7 +13,6 @@ import {
   ServerErrorResponseSchema,
   UnauthorizedResponseSchema,
   ValidationErrorResponseSchema,
-  makeMessageResponseSchema,
 } from '../../schemas/shared.js';
 import { documentEndpoint } from '../../utils/contract.js';
 import { toggleLike } from '../controllers/like.controller.js';
@@ -20,13 +20,15 @@ import { createReview, getRoomReviews } from '../controllers/review.controller.j
 
 const router = Router();
 
+router.post('/', protect(), createReview);
 documentEndpoint({
   method: 'post',
-  path: '/api/reviews',
+  path: '/api/v1/reviews',
   summary: 'Create a new review for a room',
   security: [{ bearerAuth: [] }],
   request: {
     body: {
+      required: true,
       content: { 'application/json': { schema: createReviewSchema.shape.body } },
     },
   },
@@ -34,7 +36,7 @@ documentEndpoint({
     201: {
       description: 'Review created successfully',
       content: {
-        'application/json': { schema: makeMessageResponseSchema('Review created successfully') },
+        'application/json': { schema: CreateReviewResponseSchema },
       },
     },
     400: {
@@ -51,11 +53,11 @@ documentEndpoint({
     },
   },
 });
-router.post('/', protect(), createReview);
 
+router.get('/:roomId', protect(true), getRoomReviews);
 documentEndpoint({
   method: 'get',
-  path: '/api/reviews/{roomId}',
+  path: '/api/v1/reviews/{roomId}',
   summary: 'Get paginated reviews for a room (Optional Auth)',
   description:
     'Public endpoint. If Bearer token is provided, isLiked field will reflect current user status.',
@@ -66,7 +68,7 @@ documentEndpoint({
   responses: {
     200: {
       description: 'Paginated reviews list retrieved successfully',
-      content: { 'application/json': { schema: PaginatedReviewsResponseSchema } },
+      content: { 'application/json': { schema: PaginatedReviewsSchema } },
     },
     400: {
       description: 'Validation error',
@@ -78,11 +80,11 @@ documentEndpoint({
     },
   },
 });
-router.get('/:roomId', protect(true), getRoomReviews);
 
+router.put('/:reviewId/toggle-like', protect(), toggleLike);
 documentEndpoint({
   method: 'put',
-  path: '/api/reviews/{reviewId}/toggle-like',
+  path: '/api/v1/reviews/{reviewId}/toggle-like',
   summary: 'Toggle like status on a review',
   security: [{ bearerAuth: [] }],
   request: {
@@ -107,6 +109,5 @@ documentEndpoint({
     },
   },
 });
-router.put('/:reviewId/toggle-like', protect(), toggleLike);
 
 export default router;

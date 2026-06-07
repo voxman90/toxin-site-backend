@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import type { Role } from '../@types/data.js';
 import type { AuthorizedRequest } from '../@types/express.js';
+import type { ILeanUser } from '../models/User.js';
 import User from '../models/User.js';
 
 export const protect = (isOptional = false) => {
@@ -21,7 +22,7 @@ export const protect = (isOptional = false) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string) as { id: string };
-      const user = await User.findById(decoded.id).select('-password');
+      const user = await User.findById(decoded.id).select('-password').lean<ILeanUser>();
 
       if (!user) {
         throw new Error('User not found');

@@ -24,6 +24,12 @@ export interface IBooking {
   priceSummary: BookingPriceSummary;
 }
 
+export interface ILeanBooking extends IBooking {
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface BookingModel extends Model<IBooking> {
   calculateNights(checkIn: Date, checkOut: Date): number;
   calculateTotalPrice(args: {

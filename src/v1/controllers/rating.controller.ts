@@ -2,6 +2,12 @@ import { Response } from 'express';
 import mongoose, { Types } from 'mongoose';
 
 import type { AuthorizedRequest } from '../../@types/express.js';
+import type {
+  CreateRatingResponseDTO,
+  GetRatingSummaryResponseDTO,
+  RatingAggregationResult,
+  ScoreBreakdownItem,
+} from '../../@types/rating.js';
 import Rating from '../../models/Rating.js';
 import Room from '../../models/Room.js';
 import { createRatingSchema, getRatingSummarySchema } from '../../schemas/rating.schema.js';
@@ -61,7 +67,9 @@ export const createRating = async (req: AuthorizedRequest, res: Response) => {
       );
     });
 
-    res.status(201).json({ message: 'Rating saved successfully' });
+    const responseData: CreateRatingResponseDTO = { message: 'Rating saved successfully' };
+
+    res.status(201).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   } finally {
@@ -74,7 +82,7 @@ export const getRatingSummary = async (req: AuthorizedRequest, res: Response) =>
     const { params } = await getRatingSummarySchema.parseAsync({ params: req.params });
     const { roomId } = params;
 
-    const [stats] = await Rating.aggregate([
+    const [stats] = await Rating.aggregate<RatingAggregationResult>([
       { $match: { room: new Types.ObjectId(roomId) } },
       {
         $facet: {
@@ -95,7 +103,7 @@ export const getRatingSummary = async (req: AuthorizedRequest, res: Response) =>
       },
     ]);
 
-    if (!stats || stats.summary.length === 0) {
+    if (!stats || stats.summary?.length === 0) {
       return res.status(200).json({
         totalCount: 0,
         avgScore: 0,
@@ -104,7 +112,7 @@ export const getRatingSummary = async (req: AuthorizedRequest, res: Response) =>
     }
 
     const formattedBreakdown = stats.scoreBreakdown.reduce(
-      (acc: Record<string, number>, item: Record<string, number>) => {
+      (acc: Record<string, number>, item: ScoreBreakdownItem) => {
         acc[item._id] = item.count;
 
         return acc;
@@ -112,11 +120,13 @@ export const getRatingSummary = async (req: AuthorizedRequest, res: Response) =>
       {},
     );
 
-    res.status(200).json({
-      totalCount: stats.summary[0].totalCount,
-      avgScore: Number(stats.summary[0].avgScore.toFixed(1)),
+    const responseData: GetRatingSummaryResponseDTO = {
+      totalCount: stats.summary[0]?.totalCount ?? 0,
+      avgScore: Number(stats.summary[0]?.avgScore?.toFixed(1) ?? 0),
       scoreBreakdown: formattedBreakdown,
-    });
+    };
+
+    res.status(200).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }

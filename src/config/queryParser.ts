@@ -1,12 +1,18 @@
 import qs from 'qs';
 
 const isValidNumericString = (str: string): boolean => {
-  if (isNaN(Number(str))) return false;
+  const num = Number(str);
+
+  if (isNaN(num)) return false;
 
   if (str.startsWith('+')) return false;
 
   const absoluteStr = str.startsWith('-') ? str.slice(1) : str;
   if (absoluteStr.length > 1 && absoluteStr.startsWith('0') && !absoluteStr.startsWith('0.')) {
+    return false;
+  }
+
+  if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
     return false;
   }
 

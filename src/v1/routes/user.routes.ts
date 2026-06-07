@@ -7,21 +7,22 @@ import {
   ValidationErrorResponseSchema,
   makeMessageResponseSchema,
 } from '../../schemas/shared.js';
-import { UserResponseSchema, getUserByIdSchema } from '../../schemas/user.schema.js';
+import { UserSchema, getUserSchema } from '../../schemas/user.schema.js';
 import { documentEndpoint } from '../../utils/contract.js';
-import { getMyProfile, getUserById } from '../controllers/user.controller.js';
+import { getMyProfile, getUser } from '../controllers/user.controller.js';
 
 const router = Router();
 
+router.get('/me', protect(), getMyProfile);
 documentEndpoint({
   method: 'get',
-  path: '/api/users/me',
+  path: '/api/v1/users/me',
   summary: 'Get current authorized user profile',
   security: [{ bearerAuth: [] }],
   responses: {
     200: {
       description: 'Current user profile data',
-      content: { 'application/json': { schema: UserResponseSchema } },
+      content: { 'application/json': { schema: UserSchema } },
     },
     401: {
       description: 'Unauthorized access',
@@ -33,19 +34,19 @@ documentEndpoint({
     },
   },
 });
-router.get('/me', protect(), getMyProfile);
 
+router.get('/:id', getUser);
 documentEndpoint({
   method: 'get',
-  path: '/api/users/{id}',
+  path: '/api/v1/users/{id}',
   summary: 'Get user profile by ID',
   request: {
-    params: getUserByIdSchema.shape.params,
+    params: getUserSchema.shape.params,
   },
   responses: {
     200: {
       description: 'User profile data retrieved successfully',
-      content: { 'application/json': { schema: UserResponseSchema } },
+      content: { 'application/json': { schema: UserSchema } },
     },
     400: {
       description: 'Validation error',
@@ -61,6 +62,5 @@ documentEndpoint({
     },
   },
 });
-router.get('/:id', getUserById);
 
 export default router;

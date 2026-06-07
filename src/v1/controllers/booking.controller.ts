@@ -1,34 +1,38 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 
-import type { AdditionalService, BookingPreview } from '../../@types/data.js';
+import type {
+  CreateBookingResponseDTO,
+  GetPriceSummaryDTO,
+  PriceSummaryDTO,
+} from '../../@types/booking.js';
+import type { AdditionalService } from '../../@types/data.js';
 import type { AuthorizedRequest } from '../../@types/express.js';
-import Booking from '../../models/Booking.js';
+import Booking, { type ILeanBooking } from '../../models/Booking.js';
 import Room from '../../models/Room.js';
 import Service from '../../models/Service.js';
-import { createBookingSchema, getBookingPreviewSchema } from '../../schemas/booking.schema.js';
+import { createBookingSchema, getPriceSummarySchema } from '../../schemas/booking.schema.js';
 import { handleControllerError } from '../../utils/handleError.js';
+import { toBookingDTO } from '../../utils/mappers.js';
 
-interface CalculateBookingPreviewParams {
+interface CalculatePriceSummaryProps {
   checkIn: Date;
   checkOut: Date;
   additionalServices: AdditionalService[];
   pricePerNight: number;
 }
 
-const calculateBookingPreview = async ({
+const calculatePriceSummary = async ({
   checkIn,
   checkOut,
   additionalServices,
   pricePerNight,
-}: CalculateBookingPreviewParams): Promise<BookingPreview> => {
+}: CalculatePriceSummaryProps): Promise<PriceSummaryDTO> => {
   const nights = Booking.calculateNights(checkIn, checkOut);
-
   const servicePrice = 0;
   const discount = 0;
   const { totalPrice: additionalServicePrice, summary: additionalServiceSummary } =
-    await Service.calculateAdditionalServicePrice(additionalServices);
-
+    await Service.calculateServicePrice(additionalServices);
   const { totalPrice, basePrice } = Booking.calculateTotalPrice({
     nights,
     servicePrice,
@@ -49,9 +53,9 @@ const calculateBookingPreview = async ({
   };
 };
 
-export const getBookingPreview = async (req: Request, res: Response) => {
+export const getPriceSummary = async (req: Request, res: Response) => {
   try {
-    const { params, body } = await getBookingPreviewSchema.parseAsync({
+    const { params, body } = await getPriceSummarySchema.parseAsync({
       params: req.params,
       body: req.body,
     });
@@ -64,14 +68,16 @@ export const getBookingPreview = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Room not found' });
     }
 
-    const bookingPreview = await calculateBookingPreview({
+    const priceSummary = await calculatePriceSummary({
       checkIn,
       checkOut,
       pricePerNight: room.price,
       additionalServices,
     });
 
-    return res.status(200).json(bookingPreview);
+    const responseData: GetPriceSummaryDTO = priceSummary;
+
+    return res.status(200).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }
@@ -113,29 +119,28 @@ export const createBooking = async (req: AuthorizedRequest, res: Response) => {
       return res.status(404).json({ message: 'Room not found' });
     }
 
-    const priceSummary = await calculateBookingPreview({
+    const priceSummary = await calculatePriceSummary({
       checkIn,
       checkOut,
       additionalServices,
       pricePerNight: room.price,
     });
 
-    const roomObjectId = new Types.ObjectId(roomId);
     const newBooking = await Booking.create({
       user: userId,
-      room: roomObjectId,
+      room: new Types.ObjectId(roomId),
       checkIn,
       checkOut,
-      guests: {
-        adult,
-        child,
-        baby,
-      },
+      guests: { adult, child, baby },
       additionalServices,
       priceSummary,
     });
 
-    res.status(201).json(newBooking);
+    const responseData: CreateBookingResponseDTO = toBookingDTO(
+      newBooking as unknown as ILeanBooking,
+    );
+
+    res.status(201).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }

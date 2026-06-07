@@ -8,7 +8,25 @@ import {
   MONGO_ID_MOCK,
 } from '../constants/constants.js';
 
-import { ensureObjectId, makePaginatedResponseSchema } from './shared.js';
+import {
+  ensureObjectId,
+  makeMessageResponseSchema,
+  makePaginatedResponseSchema,
+} from './shared.js';
+
+export const ReviewSchema = z
+  .object({
+    id: z.string().openapi({ example: MONGO_ID_MOCK }),
+    authorName: z.string().openapi({ example: 'Ivan Ivanov' }),
+    avatarUrl: z.string().nullable().openapi({ example: 'https://example.com' }),
+    text: z.string().openapi({ example: 'Great room, very clean!' }),
+    createdAt: z.iso.datetime(),
+    likeCount: z.number().int().openapi({ example: 5 }),
+    isLiked: z.boolean().openapi({ description: 'True if current user liked this review' }),
+  })
+  .openapi('Review');
+
+export const PaginatedReviewsSchema = makePaginatedResponseSchema(ReviewSchema, 'PaginatedReviews');
 
 export const CreateReviewBodyContractSchema = z
   .object({
@@ -62,22 +80,7 @@ export const toggleLikeSchema = z.object({
   }),
 });
 
-export const ReviewItemSchema = z
-  .object({
-    id: z.string().openapi({ example: MONGO_ID_MOCK }),
-    authorName: z.string().openapi({ example: 'Ivan Ivanov' }),
-    avatarUrl: z.string().nullable().openapi({ example: 'https://example.com' }),
-    text: z.string().openapi({ example: 'Great room, very clean!' }),
-    createdAt: z.iso.datetime(),
-    likeCount: z.number().int().openapi({ example: 5 }),
-    isLiked: z.boolean().openapi({ description: 'True if current user liked this review' }),
-  })
-  .openapi('ReviewItem');
-
-export const PaginatedReviewsResponseSchema = makePaginatedResponseSchema(
-  ReviewItemSchema,
-  'PaginatedReviewsResponse',
-);
+export const CreateReviewResponseSchema = makeMessageResponseSchema('Review created successfully');
 
 export const ToggleLikeResponseSchema = z
   .object({

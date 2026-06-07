@@ -24,7 +24,7 @@ describe('Users API (Integration)', () => {
       const res = await request(app).get('/api/v1/users/me').set(authHeader);
 
       expect(res.status).toBe(200);
-      expect(res.body._id).toBe(testUser._id.toString());
+      expect(res.body.id).toBe(testUser._id.toString());
       expect(res.body.email).toBe(testUser.email);
       expect(res.body.password).toBeUndefined();
     });

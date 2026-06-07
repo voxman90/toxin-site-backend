@@ -3,10 +3,16 @@ import type { PipelineStage } from 'mongoose';
 import mongoose, { Types } from 'mongoose';
 
 import type { AuthorizedRequest } from '../../@types/express.js';
+import type {
+  CreateReviewResponseDTO,
+  GetRoomReviewsResponseDTO,
+  ReviewDTO,
+} from '../../@types/review.js';
 import Review from '../../models/Review.js';
 import Room from '../../models/Room.js';
 import { createReviewSchema, getRoomReviewsSchema } from '../../schemas/review.schema.js';
 import { handleControllerError } from '../../utils/handleError.js';
+import { toPaginatedReviewsDTO } from '../../utils/mappers.js';
 
 export const createReview = async (req: AuthorizedRequest, res: Response) => {
   const session = await mongoose.startSession();
@@ -41,7 +47,9 @@ export const createReview = async (req: AuthorizedRequest, res: Response) => {
       );
     });
 
-    res.status(201).json({ message: 'Review created successfully' });
+    const responseData: CreateReviewResponseDTO = { message: 'Review created successfully' };
+
+    res.status(201).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   } finally {
@@ -102,9 +110,11 @@ export const getRoomReviews = async (req: AuthorizedRequest, res: Response) => {
 
     const options = { page, limit };
 
-    const result = await Review.aggregatePaginate(aggregate, options);
+    const result = await Review.aggregatePaginate<ReviewDTO>(aggregate, options);
 
-    res.status(200).json(result);
+    const responseData: GetRoomReviewsResponseDTO = toPaginatedReviewsDTO(result);
+
+    res.status(200).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }

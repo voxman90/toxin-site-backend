@@ -2,10 +2,10 @@ import { Router } from 'express';
 
 import { protect } from '../../middlewares/auth.middleware.js';
 import {
-  BookingPreviewResponseSchema,
-  BookingResponseSchema,
+  BookingSchema,
+  PriceSummarySchema,
   createBookingSchema,
-  getBookingPreviewSchema,
+  getPriceSummarySchema,
 } from '../../schemas/booking.schema.js';
 import {
   ServerErrorResponseSchema,
@@ -13,24 +13,26 @@ import {
   makeMessageResponseSchema,
 } from '../../schemas/shared.js';
 import { documentEndpoint } from '../../utils/contract.js';
-import { createBooking, getBookingPreview } from '../controllers/booking.controller.js';
+import { createBooking, getPriceSummary } from '../controllers/booking.controller.js';
 
 const router = Router();
 
+router.post('/:roomId/preview', getPriceSummary);
 documentEndpoint({
   method: 'post',
-  path: '/api/bookings/{roomId}/preview',
+  path: '/api/v1/bookings/{roomId}/preview',
   summary: 'Get booking price preview',
   request: {
-    params: getBookingPreviewSchema.shape.params,
+    params: getPriceSummarySchema.shape.params,
     body: {
-      content: { 'application/json': { schema: getBookingPreviewSchema.shape.body } },
+      required: true,
+      content: { 'application/json': { schema: getPriceSummarySchema.shape.body } },
     },
   },
   responses: {
     200: {
       description: 'Price preview calculated successfully',
-      content: { 'application/json': { schema: BookingPreviewResponseSchema } },
+      content: { 'application/json': { schema: PriceSummarySchema } },
     },
     400: {
       description: 'Validation error',
@@ -46,23 +48,24 @@ documentEndpoint({
     },
   },
 });
-router.post('/:roomId/preview', getBookingPreview);
 
+router.post('/:roomId/confirm', protect(), createBooking);
 documentEndpoint({
   method: 'post',
-  path: '/api/bookings/{roomId}/confirm',
+  path: '/api/v1/bookings/{roomId}/confirm',
   summary: 'Confirm and create room booking',
   security: [{ bearerAuth: [] }],
   request: {
     params: createBookingSchema.shape.params,
     body: {
+      required: true,
       content: { 'application/json': { schema: createBookingSchema.shape.body } },
     },
   },
   responses: {
     201: {
       description: 'Booking created successfully',
-      content: { 'application/json': { schema: BookingResponseSchema } },
+      content: { 'application/json': { schema: BookingSchema } },
     },
     400: {
       description: 'Validation or overlapping error',
@@ -82,6 +85,5 @@ documentEndpoint({
     },
   },
 });
-router.post('/:roomId/confirm', protect(), createBooking);
 
 export default router;

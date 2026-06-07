@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import type { Types } from 'mongoose';
 import { Model, Schema, model } from 'mongoose';
 
 import type { Role } from '../@types/data.js';
@@ -10,13 +11,19 @@ export interface IUser {
   birthdate: string;
   email: string;
   gender: string;
-  specialOffer: boolean;
+  specialOffer?: boolean;
   password: string;
   role: Role;
-  avatarUrl: string;
+  avatarUrl?: string;
 }
 
-export interface IUserMethods extends Model<IUser> {
+export interface ILeanUser extends IUser {
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IUserMethods {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -74,7 +81,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     toJSON: {
       virtuals: true,
       transform: (_, ret) => {
-        const user = ret as Partial<IUser>;
+        const user = ret as Partial<ILeanUser>;
 
         delete user.password;
 

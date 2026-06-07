@@ -1,8 +1,8 @@
 import { Router } from 'express';
 
 import {
-  PaginatedRoomsResponseSchema,
-  RoomItemSchema,
+  PaginatedRoomsSchema,
+  RoomSchema,
   getRoomByIdSchema,
   searchRoomsSchema,
 } from '../../schemas/room.schema.js';
@@ -16,9 +16,10 @@ import { getRoomById, searchRooms } from '../controllers/room.controller.js';
 
 const router = Router();
 
+router.get('/search', searchRooms);
 documentEndpoint({
   method: 'get',
-  path: '/api/rooms/search',
+  path: '/api/v1/rooms/search',
   summary: 'Search for available rooms based on criteria',
   request: {
     query: searchRoomsSchema.shape.query,
@@ -26,7 +27,7 @@ documentEndpoint({
   responses: {
     200: {
       description: 'Paginated available rooms list retrieved successfully',
-      content: { 'application/json': { schema: PaginatedRoomsResponseSchema } },
+      content: { 'application/json': { schema: PaginatedRoomsSchema } },
     },
     400: {
       description: 'Validation error or incorrect date range',
@@ -38,11 +39,11 @@ documentEndpoint({
     },
   },
 });
-router.get('/search', searchRooms);
 
+router.get('/:id', getRoomById);
 documentEndpoint({
   method: 'get',
-  path: '/api/rooms/{id}',
+  path: '/api/v1/rooms/{id}',
   summary: 'Get room profile details by ID',
   request: {
     params: getRoomByIdSchema.shape.params,
@@ -50,7 +51,7 @@ documentEndpoint({
   responses: {
     200: {
       description: 'Room details retrieved successfully',
-      content: { 'application/json': { schema: RoomItemSchema } },
+      content: { 'application/json': { schema: RoomSchema } },
     },
     400: {
       description: 'Validation error',
@@ -66,6 +67,5 @@ documentEndpoint({
     },
   },
 });
-router.get('/:id', getRoomById);
 
 export default router;

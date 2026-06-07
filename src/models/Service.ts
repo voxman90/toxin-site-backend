@@ -14,7 +14,7 @@ export interface AdditionalServiceSummary {
 }
 
 export interface ServiceModel extends Model<IService> {
-  calculateAdditionalServicePrice(services: AdditionalService[]): Promise<AdditionalServiceSummary>;
+  calculateServicePrice(services: AdditionalService[]): Promise<AdditionalServiceSummary>;
 }
 
 const serviceSchema = new Schema<IService, ServiceModel>(
@@ -38,9 +38,7 @@ const serviceSchema = new Schema<IService, ServiceModel>(
   },
 );
 
-serviceSchema.statics.calculateAdditionalServicePrice = async function (
-  services: AdditionalService[],
-) {
+serviceSchema.statics.calculateServicePrice = async function (services: AdditionalService[]) {
   const addServices = await Service.find({ name: { $in: services } });
 
   return {

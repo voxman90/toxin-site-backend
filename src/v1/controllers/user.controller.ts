@@ -1,22 +1,27 @@
 import { Request, Response } from 'express';
 
 import type { AuthorizedRequest } from '../../@types/express.js';
+import type { GetUserResponseDTO } from '../../@types/user.js';
+import type { ILeanUser } from '../../models/User.js';
 import User from '../../models/User.js';
-import { getUserByIdSchema } from '../../schemas/user.schema.js';
+import { getUserSchema } from '../../schemas/user.schema.js';
 import { handleControllerError } from '../../utils/handleError.js';
+import { toUserDTO } from '../../utils/mappers.js';
 
-export const getUserById = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   try {
-    const { params } = await getUserByIdSchema.parseAsync({ params: req.params });
+    const { params } = await getUserSchema.parseAsync({ params: req.params });
     const { id } = params;
 
-    const user = await User.findById(id).select('-password');
+    const user = await User.findById(id).select('-password').lean<ILeanUser>();
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.status(200).json(user);
+    const responseData: GetUserResponseDTO = toUserDTO(user);
+
+    res.status(200).json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }
@@ -30,7 +35,9 @@ export const getMyProfile = async (req: AuthorizedRequest, res: Response) => {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    res.json(user);
+    const responseData: GetUserResponseDTO = toUserDTO(user);
+
+    res.json(responseData);
   } catch (error) {
     handleControllerError(error, res);
   }
