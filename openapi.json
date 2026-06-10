@@ -596,6 +596,10 @@
       "ToggleLikeResponse": {
         "type": "object",
         "properties": {
+          "reviewId": {
+            "type": "string",
+            "example": "5d7a4c2e8b1f6a390e4d2c1b"
+          },
           "likeCount": {
             "type": "integer",
             "minimum": 0,
@@ -607,6 +611,7 @@
           }
         },
         "required": [
+          "reviewId",
           "likeCount",
           "isLiked"
         ]
@@ -679,6 +684,9 @@
             "type": "number",
             "example": 840
           },
+          "isLuxe": {
+            "type": "boolean"
+          },
           "price": {
             "type": "number",
             "example": 5000
@@ -709,6 +717,12 @@
           "reviewsCount": {
             "type": "number",
             "example": 12
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "accessibility": {
             "type": "array",
@@ -743,6 +757,7 @@
         "required": [
           "id",
           "roomNumber",
+          "isLuxe",
           "price",
           "capacity",
           "bed",
@@ -751,6 +766,7 @@
           "isAvailable",
           "avgRating",
           "reviewsCount",
+          "images",
           "accessibility",
           "rules",
           "createdAt",

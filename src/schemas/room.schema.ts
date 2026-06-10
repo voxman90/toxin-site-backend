@@ -16,6 +16,7 @@ export const RoomSchema = z
   .object({
     id: z.string().openapi({ example: MONGO_ID_MOCK }),
     roomNumber: z.number().openapi({ example: 840 }),
+    isLuxe: z.boolean(),
     price: z.number().openapi({ example: 5000 }),
     capacity: z.number().openapi({ example: 4 }),
     bed: z.number().openapi({ example: 2 }),
@@ -24,6 +25,7 @@ export const RoomSchema = z
     isAvailable: z.boolean(),
     avgRating: z.number().openapi({ example: 4.5 }),
     reviewsCount: z.number().openapi({ example: 12 }),
+    images: z.array(z.string()),
     accessibility: z.array(z.enum(ACCESSIBILITY)),
     rules: z.array(z.enum(RULES)),
     createdAt: z.iso.datetime(),

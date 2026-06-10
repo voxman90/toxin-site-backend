@@ -12,6 +12,7 @@ export const toRoomDTO = (room: ILeanRoom): RoomDTO => {
   return {
     id: room._id.toString(),
     roomNumber: room.roomNumber,
+    isLuxe: room.isLuxe,
     price: room.price,
     capacity: room.capacity,
     bed: room.bed,
@@ -20,6 +21,7 @@ export const toRoomDTO = (room: ILeanRoom): RoomDTO => {
     isAvailable: room.isAvailable,
     avgRating: room.avgRating,
     reviewsCount: room.reviewsCount,
+    images: room.images,
     accessibility: room.accessibility,
     rules: room.rules,
     createdAt: room.createdAt.toISOString(),

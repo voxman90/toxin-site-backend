@@ -150,12 +150,14 @@ describe('Reviews API (Integration)', () => {
 
     it('should toggle like successfully when user is authorized', async () => {
       const targetReview = await Review.findOne({ text: '2' });
+      const reviewId = targetReview?._id.toString();
 
       const res = await request(app)
         .put(`/api/v1/reviews/${targetReview?._id.toString()}/toggle-like`)
         .set(authHeader);
 
       expect(res.status).toBe(200);
+      expect(res.body.reviewId).toBe(reviewId);
       expect(res.body.isLiked).toBe(true);
       expect(res.body.likeCount).toBe(2);
 

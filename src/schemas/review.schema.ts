@@ -84,6 +84,7 @@ export const CreateReviewResponseSchema = makeMessageResponseSchema('Review crea
 
 export const ToggleLikeResponseSchema = z
   .object({
+    reviewId: z.string().openapi({ example: MONGO_ID_MOCK }),
     likeCount: z.number().int().nonnegative().openapi({ example: 6 }),
     isLiked: z.boolean().openapi({ description: 'The new like status for the current user' }),
   })

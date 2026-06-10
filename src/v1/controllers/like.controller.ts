@@ -54,6 +54,7 @@ export const toggleLike = async (req: AuthorizedRequest, res: Response) => {
     const isLiked = review.likes.some((id) => id.equals(userId));
 
     const responseData: ToggleLikeResponseDTO = {
+      reviewId,
       likeCount: review.likes.length,
       isLiked,
     };
