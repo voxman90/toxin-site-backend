@@ -78,6 +78,9 @@ export const searchRooms = async (req: Request, res: Response) => {
         },
       },
       { $match: { conflictingBookings: { $size: 0 } } },
+      {
+        $addFields: { id: { $toString: '$_id' } },
+      },
       { $project: { conflictingBookings: 0 } },
       {
         $sort: { [sort]: order },

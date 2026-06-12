@@ -81,7 +81,7 @@ export const getRoomReviews = async (req: AuthorizedRequest, res: Response) => {
       {
         $project: {
           _id: 1,
-          id: '$_id',
+          id: { $toString: '$_id' },
           authorName: {
             $ifNull: [{ $concat: ['$author.firstName', ' ', '$author.lastName'] }, 'Deleted User'],
           },
