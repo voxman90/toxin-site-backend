@@ -22,11 +22,12 @@ export const DEFAULT_REVIEWS_ORDER: Order = 1;
 
 export const ALLOWED_REVIEWS_SORT_FIELDS = ['text', 'likes', 'createAt'] as const;
 
-export const ALLOWED_SORT_FIELDS = [
+export const ALLOWED_ROOMS_SORT_FIELDS = [
   'price',
   'roomNumber',
   'avgRating',
   'reviewsCount',
+  'capacity',
   'createAt',
 ] as const;
 

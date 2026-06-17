@@ -1,0 +1,51 @@
+name: Sync OpenAPI Types to Frontend
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  sync-types:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Backend Repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Generate Temporary Openapi JSON and TypeScript Types
+        run: |
+          npm run generate:contract
+          npx -p openapi-typescript openapi-typescript ./openapi.json -o ./api.ts
+          rm ./openapi.json
+
+      - name: Checkout Frontend Repo
+        uses: actions/checkout@v6
+        with:
+          repository: 'voxman90/toxin-site-frontend'
+          token: ${{ secrets.FRONTEND_REPO_TOKEN }}
+          path: 'frontend-repo'
+          ref: 'master'
+
+      - name: Move Types and Push to Frontend
+        run: |
+          mkdir -p frontend-repo/src/@types/api/
+          mv ./api.ts frontend-repo/src/@types/api/api.ts
+          cd frontend-repo
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@://github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add src/@types/api/api.ts
+            git commit -m "auto-update api types from backend contract"
+            git push origin master
+            echo "API types updated and pushed to frontend."
+          else
+            echo "No changes in API types detected. Skip push."
+          fi

@@ -2,7 +2,7 @@ import type { Order } from '../@types/data.js';
 import { z } from '../config/zod.js';
 import {
   ACCESSIBILITY,
-  ALLOWED_SORT_FIELDS,
+  ALLOWED_ROOMS_SORT_FIELDS,
   DEFAULT_ROOMS_LIMIT,
   DEFAULT_ROOMS_ORDER,
   DEFAULT_ROOMS_SORT,
@@ -59,7 +59,7 @@ export const SearchRoomsQueryContractSchema = z
       .default({ bed: 0, bedroom: 0, bathroom: 0 }),
     accessibility: z.array(z.enum(ACCESSIBILITY)).optional().default([]),
     rules: z.array(z.enum(RULES)).optional().default([]),
-    sort: z.enum(ALLOWED_SORT_FIELDS).optional().default(DEFAULT_ROOMS_SORT),
+    sort: z.enum(ALLOWED_ROOMS_SORT_FIELDS).optional().default(DEFAULT_ROOMS_SORT),
     order: z
       .number()
       .optional()
