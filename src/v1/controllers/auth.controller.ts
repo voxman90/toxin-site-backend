@@ -51,7 +51,7 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(409).json({ message: 'User with this email already exists' });
     }
 
-    await User.create({
+    const user = await User.create({
       firstName,
       lastName,
       gender,
@@ -62,7 +62,13 @@ export const registerUser = async (req: Request, res: Response) => {
       password,
     });
 
-    const responseData: RegisterResponseDTO = { message: 'User signed up successfully' };
+    const token = createSecretToken(user._id.toString(), user.role);
+
+    const responseData: RegisterResponseDTO = {
+      message: 'User signed up successfully',
+      token,
+      user: toUserDTO(user as unknown as ILeanUser),
+    };
 
     res.status(201).json(responseData);
   } catch (error) {

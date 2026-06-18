@@ -24,6 +24,12 @@ describe('Auth API (Integration)', () => {
       expect(user?.firstName).toBe(validUserData.firstName);
     });
 
+    it('should not return password', async () => {
+      const res = await request(app).post('/api/v1/auth/register').send(validUserData);
+
+      expect(res.body.user.password).toBeUndefined();
+    });
+
     it('should ignore role', async () => {
       const userData = createUserDataMock({ role: 'admin' });
 

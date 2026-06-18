@@ -1,7 +1,7 @@
 import { z } from '../config/zod.js';
 import { MIN_PASSWORD_LENGTH, MONGO_ID_MOCK, ROLES } from '../constants/constants.js';
 
-import { ensureObjectId, makeMessageResponseSchema } from './shared.js';
+import { ensureObjectId } from './shared.js';
 
 export const UserSchema = z
   .object({
@@ -79,4 +79,10 @@ export const LoginResponseSchema = z
   })
   .openapi('LoginResponse');
 
-export const RegisterResponseSchema = makeMessageResponseSchema('User registered successfully');
+export const RegisterResponseSchema = z
+  .object({
+    message: z.string().openapi({ example: 'User registered successfully' }),
+    token: z.string().openapi({ example: 'eyJhbGciOiJIUzI1NiIsIn...' }),
+    user: UserSchema,
+  })
+  .openapi('RegisterResponse');

@@ -5,7 +5,12 @@ import {
   ValidationErrorResponseSchema,
   makeMessageResponseSchema,
 } from '../../schemas/shared.js';
-import { LoginResponseSchema, loginSchema, registerSchema } from '../../schemas/user.schema.js';
+import {
+  LoginResponseSchema,
+  RegisterResponseSchema,
+  loginSchema,
+  registerSchema,
+} from '../../schemas/user.schema.js';
 import { documentEndpoint } from '../../utils/contract.js';
 import { loginUser, registerUser } from '../controllers/auth.controller.js';
 
@@ -57,7 +62,7 @@ documentEndpoint({
     201: {
       description: 'User registered successfully',
       content: {
-        'application/json': { schema: makeMessageResponseSchema('User registered successfully') },
+        'application/json': { schema: RegisterResponseSchema },
       },
     },
     400: {
